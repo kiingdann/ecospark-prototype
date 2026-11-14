@@ -104,7 +104,7 @@ SCREENS['k/checking']=()=>{const o=nextOutcome();const item=outcomeItem(o);
   if(item){S.scanCount++;S.scansLeft=Math.max(0,S.scansLeft-1);S.rescued++;
    if(o==='new'){S.shelf['Tin can']=(S.shelf['Tin can']||0)+1;S.sparks+=10;S.garden=Math.min(100,S.garden+10);if(S.builds['Pencil pot']==='almost'){S.builds['Pencil pot']='ready';S.justReady='Pencil pot'}}
    else{S.shelf['Plastic bottle']=(S.shelf['Plastic bottle']||0)+1;if(S.builds['Bird feeder']==='almost'){S.builds['Bird feeder']='ready';S.justReady='Bird feeder'}}
-   S.firstDay=false;go('k/result/'+item,{replace:true})}
+   S.firstDay=false;go('k/result/'+item,{replace:true});if(o==='new')setTimeout(()=>EC.burst('small'),150)}
   else go('k/state/'+o,{replace:true})})}}};
 SCREENS['k/state']=k=>{const ST={
   person:['Surprised',"Let's try again",'I can only see things, not people. Show me just one thing.',['Try again',{go:'k/scan'}]],
@@ -196,9 +196,9 @@ SCREENS['k/where']=()=>`<div class="screen"><div class="top-space"></div><div cl
  <div class="row gap12 fill"><button class="action-tile ${where==='out'?'selected':''}" data-act="where" data-arg="out"><span class="disc">${ic('Plant/Sprout')}</span>Outside</button><button class="action-tile ${where==='in'?'selected':''}" data-act="where" data-arg="in"><span class="disc">${ic('UI/Home')}</span>Inside</button></div>
  <div class="body-md muted">Outside builds can bring a visitor to your garden!</div></div><div class="pad" style="padding-bottom:28px">${btn('Next',{go:'k/made',disabled:!where})}</div></div>`;
 ACTIONS.where=v=>{where=v;render()};
-SCREENS['k/made']=()=>{const b=S.currentBuild||'Crayon Crew';return `<div class="screen"><div class="top-space"></div><div class="scroll col gap16 pad center" style="padding-top:24px">${confetti()}${sprout('Happy',120)}<div class="display-xl">You made it!</div>
+SCREENS['k/made']=()=>{const b=S.currentBuild||'Crayon Crew';return {after(){EC.burst()},html:`<div class="screen"><div class="top-space"></div><div class="scroll col gap16 pad center" style="padding-top:24px">${confetti()}${sprout('Happy',120)}<div class="display-xl">You made it!</div>
  <div class="photo-frame"><div class="ph">${ic('Build/'+b,'s64')}</div></div><div class="body-md" style="font-weight:600">Take a photo to show ${parent()} your ${esc(b)}.</div></div>
- <div class="col gap12 pad" style="padding-bottom:28px">${btn('Take a photo',{icon:'UI/Camera',go:'k/photo'})}${btn('Later',{style:'secondary',act:'madeLater'})}</div></div>`};
+ <div class="col gap12 pad" style="padding-bottom:28px">${btn('Take a photo',{icon:'UI/Camera',go:'k/photo'})}${btn('Later',{style:'secondary',act:'madeLater'})}</div></div>`}};
 ACTIONS.madeLater=()=>{S.builds[S.currentBuild]='built';go('k/garden')};
 
 /* R · Share it */
@@ -212,10 +212,10 @@ SCREENS['k/photo-blocked']=()=>({light:true,html:`<div class="screen dark"><div 
 SCREENS['k/sent']=()=>{const b=S.sentBuild||S.currentBuild||'Bird feeder';return `<div class="screen"><div class="top-space"></div><div class="scroll col gap20 pad center" style="padding-top:40px">${sprout('Happy',120)}<div class="display-xl" style="font-size:34px">Sent to ${parent()}!</div>
  <div class="photo-frame"><div class="ph">${ic('Build/'+b,'s64')}</div></div><div class="body-lg">${parent()} will look at your ${esc(b)} soon.</div></div><div class="pad" style="padding-bottom:28px">${btn('Back to my Garden',{go:'k/garden'})}</div></div>`};
 SCREENS['k/approved']=()=>{const c=S.kidCelebrate||{build:'Bird feeder',reaction:'Proud of you!',outside:true};
- return `<div class="screen"><div class="top-space"></div><div class="scroll col gap16 pad center" style="padding-top:16px">${confetti()}${sprout('Happy',104)}<div class="display-xl" style="font-size:34px">${parent()} loved it!</div>
+ return {after(){EC.burst()},html:`<div class="screen"><div class="top-space"></div><div class="scroll col gap16 pad center" style="padding-top:16px">${confetti()}${sprout('Happy',104)}<div class="display-xl" style="font-size:34px">${parent()} loved it!</div>
  <div class="photo-frame"><div class="ph">${ic('Build/'+c.build,'s64')}</div></div><span class="reaction">${ic('UI/Star')}${esc(c.reaction)}</span>
  <div class="body-lg">${c.outside?`Your ${esc(c.build)} is outside. Watch your Garden for a visitor!`:`Your ${esc(c.build)} is on your shelf.`}</div><span class="sparks sm">${ic('UI/Sparks')}+20</span></div>
- <div class="pad" style="padding-bottom:28px">${btn('See my Garden',{act:'seeGarden'})}</div></div>`};
+ <div class="pad" style="padding-bottom:28px">${btn('See my Garden',{act:'seeGarden'})}</div></div>`}};
 ACTIONS.seeGarden=()=>{const c=S.kidCelebrate;S.kidCelebrate=null;if(c&&c.outside){go('k/garden/visitor')}else go('k/garden')};
 SCREENS['k/retry']=()=>{const r=S.kidRetry||{build:'Bird feeder',note:'Can you add a stick for the birds to stand on?'};
  return `<div class="screen"><div class="top-space"></div><div class="scroll col gap16 pad center" style="padding-top:36px">${sprout('Talk A',104)}<div class="display-xl" style="font-size:32px">Let's try once more</div>
@@ -258,9 +258,9 @@ SCREENS['k/quiz']=m=>{m=m||'Tin can';const [qq,ans,ok]=QUIZ[quiz.q];const picked
 ACTIONS.answer=i=>{if(quiz.pick!==null&&QUIZ[quiz.q][1][quiz.pick][2])return;quiz.pick=+i;render()};
 ACTIONS.nextQ=m=>{if(quiz.q<2){quiz={q:quiz.q+1,pick:null};render()}else{quiz={q:0,pick:null};finish('quiz',m)}};
 ACTIONS.quitQuiz=()=>{quiz={q:0,pick:null};back('k/learn')};
-SCREENS['k/expert']=m=>{m=m||'Tin can';return `<div class="screen"><div class="top-space"></div><div class="scroll col gap16 pad center" style="padding-top:30px">${confetti()}${sprout('Happy',112)}<div class="display-xl" style="font-size:34px">${esc(m)} expert!</div><div class="row gap12">${ic('UI/Star','s44')}${ic('UI/Star','s44')}${ic('UI/Star','s44')}</div>
+SCREENS['k/expert']=m=>{m=m||'Tin can';return {after(){EC.burst()},html:`<div class="screen"><div class="top-space"></div><div class="scroll col gap16 pad center" style="padding-top:30px">${confetti()}${sprout('Happy',112)}<div class="display-xl" style="font-size:34px">${esc(m)} expert!</div><div class="row gap12">${ic('UI/Star','s44')}${ic('UI/Star','s44')}${ic('UI/Star','s44')}</div>
  <div class="body-md" style="font-weight:600">You finished all 3 steps. Harder ${esc(m.toLowerCase())} builds are now open!</div><span class="sparks sm">${ic('UI/Sparks')}+10</span></div>
- <div class="col gap12 pad" style="padding-bottom:28px">${btn(`See ${m.toLowerCase()} builds`,{act:'expertDone',arg:'k/builds'})}${btn('Back to Learn',{style:'secondary',act:'expertDone',arg:'k/learn'})}</div></div>`};
+ <div class="col gap12 pad" style="padding-bottom:28px">${btn(`See ${m.toLowerCase()} builds`,{act:'expertDone',arg:'k/builds'})}${btn('Back to Learn',{style:'secondary',act:'expertDone',arg:'k/learn'})}</div></div>`}};
 ACTIONS.expertDone=r=>{S.sparks+=10;go(r)};
 
 /* P · Grown-ups gate, RC · Report a concern */

@@ -386,6 +386,7 @@ svg{display:block}
 .report .kv{display:flex;gap:12px;font:600 15px/20px var(--f-body)}
 .report .kv b{width:60px;color:var(--muted);font-weight:800}
 
+canvas.fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:70}
 /* Toast */
 .toast{position:absolute;left:16px;right:16px;bottom:110px;background:var(--cocoa);color:#fff;border-radius:16px;padding:14px 16px;font:700 15px/20px var(--f-body);z-index:60;box-shadow:0 8px 24px #0004;animation:pop .2s;display:flex;align-items:center;gap:10px}
 .toast .ic{color:var(--yellow)}
@@ -413,3 +414,61 @@ svg{display:block}
 .proto-panel .note{font:600 12px/16px var(--f-body);color:var(--muted)}
 .proto-panel .reset{margin-top:14px;width:100%;padding:10px;border-radius:12px;background:var(--orange-tint);color:var(--orange-ink);font:800 13px var(--f-body)}
 @media (max-width:520px){.proto-fab{right:0;bottom:auto;top:42%;width:30px;height:46px;border-radius:12px 0 0 12px;opacity:.8}.proto-fab .ic{width:18px;height:18px}.proto-panel{right:12px;top:60px;bottom:auto;width:calc(100vw - 24px)}}
+
+/* Corner smoothing 100% (squircle) on every rounded, non-pill element. Pills and circles stay plain. Browsers without corner-shape keep normal corners. */
+@supports (corner-shape: squircle){
+  .card{corner-shape:squircle;border-radius:32px}
+  .tile-bg{corner-shape:squircle;border-radius:26px}
+  .tab .tile{corner-shape:squircle;border-radius:22px}
+  .tab.scan .tile{corner-shape:squircle;border-radius:29px}
+  .next-bubble{corner-shape:squircle;border-radius:22px}
+  .continue{corner-shape:squircle;border-radius:32px}
+  .continue .ictile{corner-shape:squircle;border-radius:22px}
+  .sheet{corner-shape:squircle;border-radius:45px 45px 0 0}
+  .dialog{corner-shape:squircle;border-radius:38px}
+  .msgcard{corner-shape:squircle;border-radius:38px}
+  .icon-tile{corner-shape:squircle;border-radius:38px}
+  .banner{corner-shape:squircle;border-radius:26px}
+  .buildcard{corner-shape:squircle;border-radius:32px}
+  .buildcard .thumb{corner-shape:squircle;border-radius:22px}
+  .action-tile{corner-shape:squircle;border-radius:32px}
+  .steprow{corner-shape:squircle;border-radius:26px}
+  .picture{corner-shape:squircle;border-radius:38px}
+  .shed{corner-shape:squircle;border-radius:32px}
+  .roof-sign{corner-shape:squircle;border-radius:16px}
+  .ttile{corner-shape:squircle;border-radius:19px}
+  .zone{corner-shape:squircle;border-radius:32px}
+  .progcard{corner-shape:squircle;border-radius:32px}
+  .shelfbox{corner-shape:squircle;border-radius:29px}
+  .btile{corner-shape:squircle;border-radius:26px}
+  .btile .pic{corner-shape:squircle;border-radius:19px}
+  .stepcard{corner-shape:squircle;border-radius:38px}
+  .stepcard .gif{corner-shape:squircle;border-radius:32px}
+  .ingr{corner-shape:squircle;border-radius:26px}
+  .ingr .pic{corner-shape:squircle;border-radius:16px}
+  .gu-note{corner-shape:squircle;border-radius:26px}
+  .hero{corner-shape:squircle;border-radius:38px}
+  .photo-frame{corner-shape:squircle;border-radius:38px}
+  .photo-frame .ph{corner-shape:squircle;border-radius:26px}
+  .learnrow{corner-shape:squircle;border-radius:32px}
+  .learnrow .pic{corner-shape:squircle;border-radius:19px}
+  .keepgoing{corner-shape:squircle;border-radius:32px}
+  .keepgoing .thumb{corner-shape:squircle;border-radius:19px}
+  .video{corner-shape:squircle;border-radius:38px}
+  .qa{corner-shape:squircle;border-radius:32px}
+  .offline{corner-shape:squircle;border-radius:26px}
+  .key{corner-shape:squircle;border-radius:29px}
+  .field input{corner-shape:squircle;border-radius:26px}
+  .code input{corner-shape:squircle;border-radius:19px}
+  .listcard{corner-shape:squircle;border-radius:32px}
+  .listcard .thumb{corner-shape:squircle;border-radius:22px}
+  .waitbox{corner-shape:squircle;border-radius:32px}
+  .setrow{corner-shape:squircle;border-radius:26px}
+  .stat{corner-shape:squircle;border-radius:26px}
+  .activity .pic{corner-shape:squircle;border-radius:16px}
+  .photo{corner-shape:squircle;border-radius:22px}
+  .notif{corner-shape:squircle;border-radius:35px}
+  .appicon{corner-shape:squircle;border-radius:16px}
+  .report{corner-shape:squircle;border-radius:32px}
+  .toast{corner-shape:squircle;border-radius:26px}
+}

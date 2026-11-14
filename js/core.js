@@ -73,6 +73,17 @@ function render(){const r=cur()||'k/w1';if(!stack.length)stack=[r];
   if(overlay&&overlay.type==='dialog'&&DIALOGS[overlay.name])html+=`<div class="dialog-scrim" data-act="close"></div><div class="dialog" role="alertdialog">${DIALOGS[overlay.name](overlay.arg)}</div>`;
   html+=toastHTML();
   const app=document.getElementById('app');app.innerHTML=html;save();fitGarden();mountSprouts(app);if(out.after)out.after(app);syncPanel()}
+/* Celebration confetti (canvas-confetti), drawn inside the phone frame */
+let confettiFx=null;
+function burst(level='big'){if(!window.confetti)return;if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+ const dev=document.querySelector('.device');if(!dev)return;let cv=dev.querySelector('canvas.fx');
+ if(!cv){cv=document.createElement('canvas');cv.className='fx';dev.appendChild(cv);confettiFx=confetti.create(cv,{resize:true})}
+ const colors=['#E45B4A','#2E7D32','#FFD54F','#8FD0EA','#C65A11','#43A047','#FFE58A'];
+ const base={colors,ticks:260,gravity:.9,scalar:1.1,shapes:['square','circle','star']};
+ if(level==='small'){confettiFx({...base,particleCount:60,spread:70,startVelocity:32,origin:{x:.5,y:.32}});return}
+ confettiFx({...base,particleCount:90,spread:100,startVelocity:45,origin:{x:.5,y:.3}});
+ setTimeout(()=>{confettiFx({...base,particleCount:60,angle:60,spread:60,startVelocity:55,origin:{x:0,y:.75}});confettiFx({...base,particleCount:60,angle:120,spread:60,startVelocity:55,origin:{x:1,y:.75}})},250);
+ setTimeout(()=>confettiFx({...base,particleCount:50,spread:160,startVelocity:30,scalar:.8,origin:{x:.5,y:.2}}),700)}
 function fitGarden(){const app=document.getElementById('app');if(!app)return;const w=app.clientWidth,h=app.clientHeight;app.querySelectorAll('.gwrap').forEach(g=>{const s=Math.max(w/393,h/852);g.style.transform=`translate(-50%,-50%) scale(${s})`})}
 
 document.addEventListener('click',e=>{const t=e.target.closest('[data-go],[data-act]');if(!t||t.closest('.proto-panel'))return;
@@ -123,7 +134,7 @@ function initPanel(){const fab=document.createElement('button');fab.className='p
     else if(t.hasAttribute('data-reset')){const keep={};Object.assign(S,defaults());save();stack=[];toast('Prototype reset','UI/Refresh');go('k/w1')}});
   p.addEventListener('change',e=>{if(e.target.dataset.jump!==undefined&&e.target.value){const r=e.target.value;stack=[];go(r)}})}
 
-window.EC={replaceRoute,S,save,defaults,MATERIALS,FAMILY,esc,ic,sprout,btn,round,topbar,speak,go,back,later,sheet,dialog,closeOverlay,toast,render,SCREENS,SHEETS,DIALOGS,ACTIONS,get overlay(){return overlay}};
+window.EC={burst,replaceRoute,S,save,defaults,MATERIALS,FAMILY,esc,ic,sprout,btn,round,topbar,speak,go,back,later,sheet,dialog,closeOverlay,toast,render,SCREENS,SHEETS,DIALOGS,ACTIONS,get overlay(){return overlay}};
 window.addEventListener('DOMContentLoaded',()=>{initPanel();const q=new URLSearchParams(location.search).get('start');
   if(!location.hash){const r=q==='parent'?'p/home':q==='launch'?'p/splash':'k/w1';history.replaceState(null,'','#'+r)}
   stack=[cur()];render()});
