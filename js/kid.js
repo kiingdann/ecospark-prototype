@@ -28,7 +28,7 @@ const kidName=()=>S.kid||'Leo';
 const parent=()=>S.parentName||'Hannah';
 
 /* shared pieces */
-function kidHeader(){return `<div class="kidhead"><div class="display-lg">${esc(kidName())}</div><div class="sparks">${ic('UI/Sparks')}${S.sparks}</div></div>`}
+function kidHeader(title){return `<div class="kidhead"><div class="display-lg">${esc(title||kidName())}</div><div class="sparks">${ic('UI/Sparks')}${S.sparks}</div></div>`}
 function tabbar(active){const t=[['Garden','UI/Garden','k/garden'],['Treasury','UI/Shed','k/treasury'],['Scan','UI/Camera','k/scan'],['Learn','UI/Learn','k/learn'],['Grown-ups','UI/Grown-ups','k/gate']];
  return `<nav class="tabbar">${t.map(([l,i,r])=>`<button class="tab ${l==='Scan'?'scan':''} ${active===l?'active':''}" data-go="${r}"><span class="tile">${ic(i)}</span>${l}</button>`).join('')}</nav>`}
 function sproutBubble(pose,msg,size=64){return `<div class="row gap8">${sprout(pose,size)}<div class="bubble multi">${esc(msg)}</div></div>`}
@@ -150,7 +150,7 @@ SCREENS['k/treasury']=()=>{const empty=S.firstDay;const ready=readyBuilds();cons
   const others=almostBuilds();
   zone=`${sproutBubble('Talk A',msg,44)}${S.sentBuild?`<div class="buildcard" style="box-shadow:0 0 0 2px var(--line)"><div class="thumb">${ic('Build/'+S.sentBuild,'s44')}</div><div class="grow"><div class="title-md">Waiting for ${parent()}</div><div class="body-sm muted">Your ${esc(S.sentBuild)} is on its way</div></div><div class="spinner" style="width:28px;height:28px"></div></div>`:first?buildCard(first):''}
   ${others.length?`<button class="morelink" data-go="k/builds"><span class="mini">${ic('Build/'+others[0])}</span>${others[1]?`<span class="mini" style="margin-left:-12px">${ic('Build/'+others[1])}</span>`:''}${others.length} more almost ready ${ic('UI/Chevron right','s20')}</button>`:''}`}
- return `<div class="screen"><div class="top-space"></div>${kidHeader()}<div class="scroll"><div class="col gap16 pad" style="padding-bottom:24px">${progressCard(empty)}${shed(empty)}<div class="zone">${zone}</div>
+ return `<div class="screen"><div class="top-space"></div>${kidHeader('Treasury')}<div class="scroll"><div class="col gap16 pad" style="padding-bottom:24px">${progressCard(empty)}${shed(empty)}<div class="zone">${zone}</div>
  ${empty?btn('Scan something',{icon:'UI/Camera',go:'k/scan'}):''}${!empty&&found()>=12?btn('See my builds',{style:'accent',go:'k/builds'}):''}</div></div>${tabbar('Treasury')}</div>`};
 
 /* MB2 · My builds */
@@ -229,9 +229,9 @@ const LEARN=['Tin can','Plastic bottle','Bottle top','Cardboard box'];
 function lp(m){return S.learn[m]||(S.learn[m]={video:false,quiz:false,story:false})}
 function learnRow(m){const p=lp(m);return `<button class="learnrow" data-go="k/path/${m}"><span class="pic">${ic('Material/'+m)}</span><span class="name">${esc(m)}</span><span class="mini3"><i class="${p.video?'done':''}">${ic('UI/Video')}</i><i class="${p.quiz?'done':''}">${ic('UI/Quiz')}</i><i class="${p.story?'done':''}">${ic('UI/Headphones')}</i></span></button>`}
 SCREENS['k/learn']=()=>{
- if(S.firstDay)return `<div class="screen"><div class="top-space"></div>${kidHeader()}<div class="pad display-lg">Learn</div><div class="grow col center gap24 pad">${sproutBubble('Wave up','Scan a treasure to unlock its videos!',96)}${btn('Scan something',{icon:'UI/Camera',go:'k/scan'})}</div>${tabbar('Learn')}</div>`;
+ if(S.firstDay)return `<div class="screen"><div class="top-space"></div>${kidHeader('Learn')}<div class="grow col center gap24 pad">${sproutBubble('Wave up','Scan a treasure to unlock its videos!',96)}${btn('Scan something',{icon:'UI/Camera',go:'k/scan'})}</div>${tabbar('Learn')}</div>`;
  const t=lp('Tin can');const nxt=!t.video?['1 · What is it?','video']:!t.quiz?['2 · What does it become?','quiz']:!t.story?['3 · How it helps wildlife','story']:null;
- return `<div class="screen"><div class="top-space"></div>${kidHeader()}<div class="scroll"><div class="col gap12 pad" style="padding-bottom:20px"><div class="display-lg">Learn</div>
+ return `<div class="screen"><div class="top-space"></div>${kidHeader('Learn')}<div class="scroll"><div class="col gap12 pad" style="padding-bottom:20px">
  ${S.offline?`<div class="offline">${ic('UI/Wifi off')}No internet. Videos and stories need it. Your progress is saved.</div>`:nxt?`<button class="keepgoing" data-go="k/${nxt[1]}/Tin can"><span class="thumb">${ic('UI/Video')}</span><span class="grow col"><span class="label-sm">Keep going · Tin can</span><span class="title-sm">${nxt[0]}</span></span>${ic('UI/Play')}</button>`:''}
  ${LEARN.slice(0,S.offline?3:4).map(learnRow).join('')}${S.offline?btn('Try again',{style:'secondary',act:'retry'}):''}</div></div>${tabbar('Learn')}</div>`};
 SCREENS['k/path']=m=>{m=m||'Tin can';const p=lp(m);const nextKey=!p.video?'video':!p.quiz?'quiz':!p.story?'story':null;
