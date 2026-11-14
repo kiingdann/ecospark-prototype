@@ -63,7 +63,7 @@ function continueCard(){let k=S.continueKind;if(S.offline)k='offline';else if(S.
 SCREENS['k/garden']=(arg)=>{
  if(S.kidCelebrate&&!arg)return SCREENS['k/approved']('');
  if(S.kidRetry&&!arg)return SCREENS['k/retry']('');
- return {html:`<div class="screen sky"><div class="garden">${gardenLayers(S.firstDay)}</div><div class="top-space" style="position:relative;z-index:2"></div><div style="position:relative;z-index:2">${kidHeader()}</div>
+ return {html:`<div class="screen sky"><div class="garden">${gardenLayers(S.firstDay)}</div><div class="top-space" style="position:relative;z-index:2"></div><div style="position:relative;z-index:2">${kidHeader('Hello '+kidName()+' 👋')}</div>
  ${S.weekly&&!S.firstDay?`<div style="position:relative;z-index:2;padding:0 16px"><button class="theme-pill" data-act="theme">${ic('Visitor/Bird')}This week: Autumn birds</button></div>`:''}
  <div class="grow"></div><div style="position:relative;z-index:2;padding:0 16px 14px">${continueCard()}</div>${tabbar('Garden')}</div>`,
  after(){if(arg&&!EC.overlay){EC.replaceRoute('k/garden');}if(arg&&!EC.overlay)ACTIONS[{plant:'plant',visitor:'visitor',recycled:'recycled',theme:'theme'}[arg]]?.('Sunflower')}};

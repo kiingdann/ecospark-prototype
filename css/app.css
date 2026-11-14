@@ -29,7 +29,10 @@ svg{display:block}
   body{display:block;background:var(--surface-page)}
   .device{position:fixed;inset:0;width:auto;height:auto;border-radius:0;box-shadow:none}
   .statusbar{display:none}
-  .top-space{height:calc(env(safe-area-inset-top,0px) + 8px)}
+  .top-space{height:max(env(safe-area-inset-top,0px),16px)}
+  .kidhead{margin-top:0}
+  .topbar{margin-top:0}
+  .cam-top{margin-top:0}
   .screen{padding-bottom:env(safe-area-inset-bottom,0px)}
   .tabbar,.ptabbar{margin-bottom:calc(-1 * env(safe-area-inset-bottom,0px));padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))}
   .sheet{padding-bottom:calc(28px + env(safe-area-inset-bottom,0px))}
