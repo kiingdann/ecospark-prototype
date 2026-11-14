@@ -31,7 +31,12 @@ function save(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function ic(name,cls=''){const svg=(window.ICONS||{})[name]||'';return `<span class="ic ${cls}" aria-hidden="true">${svg}</span>`}
 const POSE={'Idle':'idle','Blink':'blink','Happy':'happy','Talk A':'talk-a','Talk B':'talk-b','Surprised':'surprised','Wave up':'wave-up','Wave down':'wave-down'};
-function sprout(pose='Idle',w=120,style=''){const k=POSE[pose]||pose;return `<span class="sprout" role="img" aria-label="Sprout" style="width:${w}px;height:${w*1.5}px;${style}">${(window.SPROUT||{})[k]||''}</span>`}
+function sprout(pose='Idle',w=120,style=''){const k=POSE[pose]||pose;const still=((window.SPROUT||{})[k]||'').replace('class="sprout-svg"','class="sprout-svg still"');return `<span class="sprout" data-pose="${k}" role="img" aria-label="Sprout" style="width:${w}px;height:${w*1.5}px;${style}">${still}</span>`}
+/* Sprout animation: Lottie files exported from Figma by Dahaba (assets/lottie). Falls back to the still pose. */
+function mountSprouts(root){if(!window.lottie||!window.SPROUT_LOTTIE)return;try{lottie.destroy()}catch(e){}
+ const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+ root.querySelectorAll('.sprout[data-pose]').forEach(el=>{const data=SPROUT_LOTTIE[el.dataset.pose];if(!data)return;const still=el.innerHTML;el.innerHTML='';
+  try{const a=lottie.loadAnimation({container:el,renderer:'svg',loop:true,autoplay:!reduce,animationData:data,rendererSettings:{preserveAspectRatio:'xMidYMid meet'}});if(reduce)a.goToAndStop(0,true)}catch(e){el.innerHTML=still}})}
 function btn(label,o={}){const st=o.style||'primary',sz=o.size||'lg';const a=o.go?`data-go="${o.go}"`:o.act?`data-act="${o.act}" ${o.arg!==undefined?`data-arg="${esc(o.arg)}"`:''}`:'';
   return `<button class="btn btn-${st} btn-${sz} ${o.block===false?'':'block'} ${o.cls||''}" ${a} ${o.disabled?'disabled':''} ${o.id?`id="${o.id}"`:''}>${o.icon?ic(o.icon):''}<span>${esc(label)}</span></button>`}
 function round(icon,a,o={}){return `<button class="round ${o.small?'small':''} ${o.dark?'dark':''}" ${a} aria-label="${o.label||icon.split('/')[1]}">${ic(icon)}</button>`}
@@ -67,7 +72,7 @@ function render(){const r=cur()||'k/w1';if(!stack.length)stack=[r];
   if(overlay&&overlay.type==='sheet'&&SHEETS[overlay.name])html+=`<div class="scrim" data-act="close"></div><div class="sheet" role="dialog"><div class="handle"></div>${SHEETS[overlay.name](overlay.arg)}</div>`;
   if(overlay&&overlay.type==='dialog'&&DIALOGS[overlay.name])html+=`<div class="dialog-scrim" data-act="close"></div><div class="dialog" role="alertdialog">${DIALOGS[overlay.name](overlay.arg)}</div>`;
   html+=toastHTML();
-  const app=document.getElementById('app');app.innerHTML=html;save();fitGarden();if(out.after)out.after(app);syncPanel()}
+  const app=document.getElementById('app');app.innerHTML=html;save();fitGarden();mountSprouts(app);if(out.after)out.after(app);syncPanel()}
 function fitGarden(){const app=document.getElementById('app');if(!app)return;const w=app.clientWidth,h=app.clientHeight;app.querySelectorAll('.gwrap').forEach(g=>{const s=Math.max(w/393,h/852);g.style.transform=`translate(-50%,-50%) scale(${s})`})}
 
 document.addEventListener('click',e=>{const t=e.target.closest('[data-go],[data-act]');if(!t||t.closest('.proto-panel'))return;
