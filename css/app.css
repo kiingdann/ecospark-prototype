@@ -155,6 +155,46 @@ svg{display:block}
 .theme-pill{display:inline-flex;align-items:center;gap:6px;background:#fff;border-radius:var(--r-full);padding:4px 14px 4px 4px;box-shadow:var(--shadow-card);font:800 14px/18px var(--f-body)}
 .theme-pill .ic{width:36px;height:32px}
 
+/* Living garden */
+.living .gsky{position:absolute;inset:-40px;transition:background 1s}
+.living .gsun{position:absolute;border-radius:50%;animation:glow 6s ease-in-out infinite}
+@keyframes glow{50%{box-shadow:0 0 0 10px #ffd54f33,0 0 40px 12px #ffd54f55}}
+.living .gcloud{position:absolute;width:0;animation:drift var(--cd) linear var(--cdl) infinite}
+@keyframes drift{from{transform:translateX(-300px)}to{transform:translateX(520px)}}
+.living .layer{pointer-events:none}
+.living .gp{position:absolute;cursor:pointer}
+.living .gp svg{width:100%;height:100%;overflow:visible}
+.living .sway{transform-origin:50% 100%;animation:sway var(--d) ease-in-out var(--dl) infinite alternate}
+@keyframes sway{from{transform:rotate(calc(var(--a) * -1))}to{transform:rotate(var(--a))}}
+.living .grass{--a:6deg}
+.living .gnext{transform-origin:197px 604px;animation:sway 4.6s ease-in-out -1s infinite alternate;--a:3deg}
+.living .gbird{transform-origin:62px 388px;animation:idlehop 7s ease-in-out infinite}
+@keyframes idlehop{0%,82%,100%{transform:none}86%{transform:translateY(-4px) rotate(-5deg)}90%{transform:none}93%{transform:rotate(4deg)}96%{transform:none}}
+.living .gbird.hop{animation:hop .7s ease-out}
+@keyframes hop{30%{transform:translateY(-14px) rotate(-8deg)}60%{transform:translateY(0) rotate(3deg)}80%{transform:translateY(-4px)}}
+.living .gbutterfly{animation:flutter 11s ease-in-out infinite}
+@keyframes flutter{0%,100%{transform:translate(0,0)}20%{transform:translate(22px,-14px)}45%{transform:translate(48px,4px)}65%{transform:translate(20px,18px)}85%{transform:translate(-14px,6px)}}
+.living .gbutterfly .flap{position:absolute;inset:0;transform-origin:180px 341px;animation:flap .32s ease-in-out infinite alternate}
+@keyframes flap{to{transform:scaleX(.55)}}
+.living .gbutterfly.away{animation:away 2.2s ease-in-out}
+@keyframes away{40%{transform:translate(90px,-150px)}70%{transform:translate(-40px,-90px)}}
+.living .gbee{animation:loop8 7s ease-in-out infinite}
+@keyframes loop8{0%,100%{transform:translate(0,0)}25%{transform:translate(-16px,-10px)}50%{transform:translate(0,-4px)}75%{transform:translate(14px,-12px)}}
+.living .gbee .bob{position:absolute;inset:0;animation:bob .5s ease-in-out infinite alternate}
+@keyframes bob{to{transform:translateY(-2px)}}
+.living .gbee.zip{animation:zip 1.6s ease-in-out}
+@keyframes zip{30%{transform:translate(120px,-40px)}55%{transform:translate(-60px,-70px)}80%{transform:translate(10px,8px)}}
+.living .flower.boing{animation:boing .6s ease-out}
+@keyframes boing{30%{transform:scale(1.12,.9)}60%{transform:scale(.95,1.08)}80%{transform:scale(1.02,.98)}}
+.living .grass.rustle{animation:rustle .7s ease-out}
+@keyframes rustle{25%{transform:rotate(-14deg)}50%{transform:rotate(10deg)}75%{transform:rotate(-5deg)}}
+.living .gground{position:absolute;left:-40px;right:-40px;top:851px;height:600px;background:#8CC152}
+.living .gwarm{position:absolute;left:-40px;right:-40px;top:-40px;bottom:-600px;background:linear-gradient(180deg,#ff8a3d00 40%,#ff7a3d 100%);mix-blend-mode:multiply;pointer-events:none}
+.living .ghit{position:absolute;border-radius:50%;z-index:2}
+.gspark{position:absolute;color:#FFD54F;pointer-events:none;animation:spark .9s ease-out forwards;z-index:4}
+@keyframes spark{from{transform:translate(-8px,-8px) scale(.4);opacity:1}to{transform:translate(calc(var(--tx) - 8px),calc(var(--ty) - 8px)) scale(1);opacity:0}}
+.bg-paused .living *{animation-play-state:paused!important}
+@media (prefers-reduced-motion: reduce){.living *{animation:none!important}}
 /* Sheets and overlays */
 .scrim{position:absolute;inset:0;background:#1b1410;opacity:.5;z-index:20;animation:fade .2s}
 .sheet{position:absolute;left:0;right:0;bottom:0;background:var(--cream);border-radius:28px 28px 0 0;padding:12px 24px 32px;z-index:21;display:flex;flex-direction:column;gap:16px;animation:up .25s cubic-bezier(.2,.8,.2,1);max-height:92%;overflow-y:auto}

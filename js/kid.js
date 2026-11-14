@@ -51,11 +51,7 @@ SCREENS['k/w1']=()=>`<div class="screen"><div class="top-space"></div><div class
 ACTIONS.pickKid=n=>{S.kid=n;go('k/garden')};
 
 /* G · Garden home */
-function gardenLayers(empty){const G=window.GARDEN||{};const pct=empty?0:Math.min(100,S.garden);
- const vis=!empty;return `<div class="gwrap" style="position:absolute;left:50%;top:50%;width:393px;height:852px">
-  <div class="layer">${G.base||''}</div>${vis?`<div class="layer">${G.feeder}</div><div class="layer">${G['v-bird']}</div><div class="layer">${G['v-butterfly']}</div><div class="layer">${G['v-bee']}</div><div class="layer">${G.flowers}</div>`:''}<div class="layer">${G.next}</div>
-  ${vis?`<button class="flower-hit" style="left:0;top:490px;width:95px;height:110px" data-act="plant" data-arg="Sunflower" aria-label="Sunflower"></button><button class="flower-hit" style="left:280px;top:480px;width:95px;height:110px" data-act="plant" data-arg="Sunflower" aria-label="Sunflower"></button><button class="flower-hit" style="left:225px;top:480px;width:60px;height:100px" data-act="plant" data-arg="Daisy" aria-label="Daisy"></button><button class="flower-hit" style="left:85px;top:490px;width:55px;height:90px" data-act="plant" data-arg="Tulip" aria-label="Tulip"></button><button class="flower-hit" style="left:20px;top:330px;width:90px;height:80px" data-act="visitor" aria-label="Robin"></button>`:''}
-  <div class="next-bubble" data-act="nextFlower"><div class="row">${ic('UI/Sparks','s16')}${pct} / 100</div><div class="bar"><i style="width:${pct}%"></i></div></div></div>`}
+function gardenLayers(empty){return window.GARDEN_SCENE({empty})}
 function continueCard(){let k=S.continueKind;if(S.offline)k='offline';else if(S.firstDay)k='first';
  const C={news:['Build/Desk Post',`${parent()} says: Proud of you!`,'Your Desk Post is on your shelf','k/builds/Desk Post'],
   progress:['Build/Crayon Crew',`Crayon Crew: step ${Math.max(2,S.buildStep||2)} of 4`,'Pick up where you left off','k/step/'+Math.max(2,S.buildStep||2)],

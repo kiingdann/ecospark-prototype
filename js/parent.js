@@ -14,7 +14,7 @@ function waitCard(a,i,sub){return `<button class="listcard ${a.doneItem?'done':'
 
 /* A · App start */
 SCREENS['p/splash']=()=>({html:`<div class="screen splash">${sprout('Wave up',140)}<div class="display-xl" style="margin-top:12px">EcoSpark</div><div class="title-md muted">for Kids</div><div class="dots-load"><i></i><i></i><i></i></div></div>`,after(){later(1800,()=>go('p/welcome',{replace:true}))}});
-SCREENS['p/welcome']=()=>{const G=window.GARDEN||{};return `<div class="screen sky"><div class="garden"><div class="gwrap" style="position:absolute;left:50%;top:50%;width:393px;height:852px;margin-top:-140px">${['base','feeder','v-bird','v-butterfly','v-bee','flowers','next'].map(k=>`<div class="layer">${G[k]||''}</div>`).join('')}</div></div>
+SCREENS['p/welcome']=()=>{const G=window.GARDEN||{};return `<div class="screen sky"><div class="garden">${window.GARDEN_SCENE({offsetY:-140})}</div>
  <div class="grow"></div><div style="position:relative;z-index:2;padding:0 24px 36px"><div class="card col gap12" style="padding:24px 22px;border-radius:28px"><div class="display-lg">Find treasures. Build. Grow.</div><div class="body-md muted">A recycling adventure for children aged 5 to 12, with their grown-ups.</div>
  ${btn('Set up for my family',{go:'p/signup'})}${btn('I have an account',{style:'secondary',go:'p/signin'})}<div class="body-sm muted center">For grown-ups. Setup takes about 3 minutes.</div></div></div></div>`};
 

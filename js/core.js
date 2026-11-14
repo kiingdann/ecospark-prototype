@@ -21,7 +21,7 @@ function defaults(){return{
   screenTime:{Leo:'30 min',Maya:'45 min'},curfew:true,notifs:[true,true,true,false],
   photos:['Bird feeder','Desk Post','Crayon Crew','Pencil pot','Plant Pal','Crayon Crew'],
   parentName:'Hannah',email:'hannah@email.co.uk',
-  draftChild:null,newPin:'',
+  draftChild:null,newPin:'',gardenTime:'auto',
 };}
 let S;
 try{S=Object.assign(defaults(),JSON.parse(localStorage.getItem(LS)||'{}'))}catch(e){S=defaults()}
@@ -108,7 +108,7 @@ const JUMPS=[
   ['p/family','FA1 · Family'],['p/child/Leo','FA2 · Leo'],['p/photos','FA3 · Photos'],['p/time','FA4 · Screen time'],['p/report','FA5 · Report'],
   ['p/account','AC1 · Account'],['p/password','AC2 · Change password'],['p/notifs','AC3 · Notifications'],['p/delete','AC4 · Delete account']]]];
 function opt(key,val,label){return `<button class="opt ${S[key]===val?'on':''}" data-set="${key}" data-val="${esc(JSON.stringify(val))}">${label}</button>`}
-function panelHTML(){return `<h3>Prototype settings</h3><p class="note">Controls for testing. They are not part of the app.</p>
+function panelHTML(){return `<div class="row" style="justify-content:space-between"><h3>Prototype settings</h3><button class="opt" data-closepanel>Close</button></div><p class="note">Controls for testing. They are not part of the app.</p>
  <h4>Start as</h4><div class="opts"><button class="opt" data-start="kid">Kid app (Leo)</button><button class="opt" data-start="parent">Parent zone (Hannah)</button><button class="opt" data-start="launch">First launch</button></div>
  <h4>Jump to a screen</h4><select data-jump><option value="">Choose a screen…</option>${JUMPS.map(([g,l])=>`<optgroup label="${g}">${l.map(([r,n])=>`<option value="${esc(r)}">${esc(n)}</option>`).join('')}</optgroup>`).join('')}</select>
  <h4>Kid app states</h4><div class="opts">${opt('offline',false,'Online')}${opt('offline',true,'Offline')}</div>
@@ -117,6 +117,7 @@ function panelHTML(){return `<h3>Prototype settings</h3><p class="note">Controls
  <h4>Scans left today</h4><div class="opts">${opt('scansLeft',3,'3')}${opt('scansLeft',1,'1')}${opt('scansLeft',0,'0')}</div>
  <h4>Next scan result</h4><div class="opts">${[['auto','Story order'],['new','New treasure'],['again','Found again'],['person','A person'],['unsure','Not sure'],['battery','Battery'],['other','Something else']].map(([v,l])=>opt('nextScan',v,l)).join('')}</div>
  <h4>Next build photo</h4><div class="opts">${opt('nextPhoto','ok','Just the build')}${opt('nextPhoto','person','Has a person')}</div>
+ <h4>Garden time of day (Proposal)</h4><div class="opts">${opt('gardenTime','auto','Device clock')}${opt('gardenTime','morning','Morning')}${opt('gardenTime','day','Day')}${opt('gardenTime','dusk','Evening')}</div>
  <h4>Garden continue card</h4><div class="opts">${[['news','Parent news'],['progress','Build in progress'],['almost','Almost ready'],['scan','Nothing waiting']].map(([v,l])=>opt('continueKind',v,l)).join('')}</div>
  <h4>To confirm with the client</h4><div class="opts">${opt('c5','A','C5-A counter always')}${opt('c5','B','C5-B counter at limit')}</div><div class="opts" style="margin-top:6px">${opt('a2','A','A2-A treasures')}${opt('a2','B','A2-B items rescued')}</div>
  <h4>Proposals</h4><div class="opts">${opt('weekly',true,'Weekly theme on')}${opt('weekly',false,'off')}</div><div class="opts" style="margin-top:6px">${opt('a1',true,'Inside or outside on')}${opt('a1',false,'off')}</div><div class="opts" style="margin-top:6px">${opt('ages','9-12','Ages 9 to 12 text')}${opt('ages','5-9','Ages 5 to 9')}</div><div class="opts" style="margin-top:6px">${opt('tellUs',true,'Report link on')}${opt('tellUs',false,'off')}</div>
@@ -131,6 +132,7 @@ function initPanel(){const fab=document.createElement('button');fab.className='p
     if(t.dataset.set){S[t.dataset.set]=JSON.parse(t.dataset.val);save();render()}
     else if(t.dataset.start){const s=t.dataset.start;stack=[];go(s==='kid'?'k/w1':s==='parent'?'p/home':'p/splash')}
     else if(t.dataset.jumpto){go(t.dataset.jumpto)}
+    else if(t.hasAttribute('data-closepanel')){p.classList.remove('open')}
     else if(t.hasAttribute('data-reset')){const keep={};Object.assign(S,defaults());save();stack=[];toast('Prototype reset','UI/Refresh');go('k/w1')}});
   p.addEventListener('change',e=>{if(e.target.dataset.jump!==undefined&&e.target.value){const r=e.target.value;stack=[];go(r)}})}
 
