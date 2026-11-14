@@ -1,0 +1,57 @@
+<svg width="240" height="360" viewBox="0 0 240 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Pose=Idle">
+<g id="n19_176">
+<g id="n19_177">
+<path id="n19_178" d="M114 98C112 70 90 50 48 45C36 44 30 52 32 62C38 92 80 108 114 98Z" fill="#93C83E" stroke="#5A3E1B" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="n19_179" d="M56 62C78.6667 72.6667 97.3333 83.3333 112 94" stroke="#5E9F2B" stroke-width="4" stroke-linecap="round"/>
+</g>
+</g>
+<g id="n19_180">
+<g id="n19_181">
+<path id="n19_182" d="M124 98C120 60 150 30 205 22C218 20 222 30 218 45C210 80 170 105 124 98Z" fill="#93C83E" stroke="#5A3E1B" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="n19_183" d="M128 92C149.333 65.3333 176 44 208 28" stroke="#5E9F2B" stroke-width="4" stroke-linecap="round"/>
+</g>
+</g>
+<g id="n19_184">
+<path id="n19_185" d="M120 112V96" stroke="#5A3E1B" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<g id="n19_186">
+<g id="n19_187">
+<path id="n19_188" d="M172 196C188 192 203 172 210 150C213 140 224 141 226 151C230 174 206 206 174 210L172 196Z" fill="#B2D95E" stroke="#5A3E1B" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+</g>
+<g id="n19_189">
+<path id="n19_190" d="M120 227C154.242 227 182 199.242 182 165C182 130.758 154.242 103 120 103C85.7583 103 58 130.758 58 165C58 199.242 85.7583 227 120 227Z" fill="#C6DB6E" stroke="#5A3E1B" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<g id="n19_191">
+<path id="n19_192" d="M72 199C78.6274 199 84 194.971 84 190C84 185.029 78.6274 181 72 181C65.3726 181 60 185.029 60 190C60 194.971 65.3726 199 72 199Z" fill="#EDB59B"/>
+</g>
+<g id="n19_193">
+<path id="n19_194" d="M168 199C174.627 199 180 194.971 180 190C180 185.029 174.627 181 168 181C161.373 181 156 185.029 156 190C156 194.971 161.373 199 168 199Z" fill="#EDB59B"/>
+</g>
+<g id="n19_195">
+<path id="n19_196" d="M92 181C96.9706 181 101 176.075 101 170C101 163.925 96.9706 159 92 159C87.0294 159 83 163.925 83 170C83 176.075 87.0294 181 92 181Z" fill="#4A2F1B"/>
+<path id="n19_197" d="M89 169C90.6569 169 92 167.657 92 166C92 164.343 90.6569 163 89 163C87.3431 163 86 164.343 86 166C86 167.657 87.3431 169 89 169Z" fill="white"/>
+</g>
+<g id="n19_198">
+<path id="n19_199" d="M148 181C152.971 181 157 176.075 157 170C157 163.925 152.971 159 148 159C143.029 159 139 163.925 139 170C139 176.075 143.029 181 148 181Z" fill="#4A2F1B"/>
+<path id="n19_200" d="M145 169C146.657 169 148 167.657 148 166C148 164.343 146.657 163 145 163C143.343 163 142 164.343 142 166C142 167.657 143.343 169 145 169Z" fill="white"/>
+</g>
+<g id="n19_201">
+<path id="n19_202" d="M108 188C116 196.667 124 196.667 132 188" stroke="#4A2F1B" stroke-width="5" stroke-linecap="round"/>
+</g>
+<g id="n19_203">
+<path id="n19_204" d="M44 246H196L184 334C183.333 342 179 346 171 346H69C61 346 56.6667 342 56 334L44 246Z" fill="#EEE53B" stroke="#5A3E1B" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="n19_205" d="M200 218H40C35.5817 218 32 221.582 32 226V242C32 246.418 35.5817 250 40 250H200C204.418 250 208 246.418 208 242V226C208 221.582 204.418 218 200 218Z" fill="#F2E83F" stroke="#5A3E1B" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="n19_206" d="M190 254H50V263H190V254Z" fill="#8DBB2D"/>
+</g>
+<g id="n19_207">
+<path id="n19_208" d="M124.7 269.4C130.302 270.398 135.445 273.139 139.396 277.234C143.347 281.328 145.903 286.566 146.7 292.2" stroke="#4E8F1E" stroke-width="10"/>
+<path id="n19_209" d="M149 308.1L159.6 290.4L133.9 294.1L149 308.1Z" fill="#4E8F1E"/>
+<path id="n19_210" d="M140.7 313.4C137.025 317.755 132.066 320.835 126.534 322.201C121.001 323.566 115.179 323.145 109.9 321" stroke="#4E8F1E" stroke-width="10"/>
+<path id="n19_211" d="M95.1 315L105 333.1L114.8 309L95.1 315Z" fill="#4E8F1E"/>
+<path id="n19_212" d="M94.6 305.2C92.6579 299.838 92.4634 293.999 94.0443 288.52C95.6251 283.041 98.9002 278.203 103.4 274.7" stroke="#4E8F1E" stroke-width="10"/>
+<path id="n19_213" d="M116 264.9L95.4 264.5L111.4 285L116 264.9Z" fill="#4E8F1E"/>
+</g>
+</g>
+</svg>
