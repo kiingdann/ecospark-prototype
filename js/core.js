@@ -123,12 +123,11 @@ function panelHTML(){return `<div class="row" style="justify-content:space-betwe
  <h4>Proposals</h4><div class="opts">${opt('weekly',true,'Weekly theme on')}${opt('weekly',false,'off')}</div><div class="opts" style="margin-top:6px">${opt('a1',true,'Inside or outside on')}${opt('a1',false,'off')}</div><div class="opts" style="margin-top:6px">${opt('ages','9-12','Ages 9 to 12 text')}${opt('ages','5-9','Ages 5 to 9')}</div><div class="opts" style="margin-top:6px">${opt('tellUs',true,'Report link on')}${opt('tellUs',false,'off')}</div>
  <h4>Parent zone</h4><div class="opts"><button class="opt" data-jumpto="p/push">Send the push alert</button></div>
  <p class="note" style="margin-top:8px">Grown-up PIN: <b>${esc(S.pin)}</b>. Email code: any 6 digits (000000 shows the error).</p>
- <p class="note" style="margin-top:8px" id="dbg"></p>
  <button class="reset" data-reset>Reset the prototype</button>`}
 function syncPanel(){const p=document.querySelector('.proto-panel');if(p&&p.classList.contains('open'))p.innerHTML=panelHTML()}
 function initPanel(){const fab=document.createElement('button');fab.className='proto-fab';fab.setAttribute('aria-label','Prototype settings');fab.innerHTML=ic('UI/Settings');
   const p=document.createElement('div');p.className='proto-panel';document.body.append(fab,p);
-  fab.onclick=()=>{p.classList.toggle('open');if(p.classList.contains('open')){p.innerHTML=panelHTML();const t=document.createElement('div');t.style.cssText='position:fixed;top:0;height:env(safe-area-inset-top,0px);visibility:hidden';document.body.appendChild(t);const d=p.querySelector('#dbg');if(d)d.textContent=`Screen check: top safe area ${t.offsetHeight}px · window ${innerWidth}×${innerHeight} · screen ${screen.width}×${screen.height}${navigator.standalone?' · home screen app':''}`;t.remove()}};
+  fab.onclick=()=>{p.classList.toggle('open');if(p.classList.contains('open'))p.innerHTML=panelHTML()};
   p.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;
     if(t.dataset.set){S[t.dataset.set]=JSON.parse(t.dataset.val);save();render()}
     else if(t.dataset.start){const s=t.dataset.start;stack=[];go(s==='kid'?'k/w1':s==='parent'?'p/home':'p/splash')}
