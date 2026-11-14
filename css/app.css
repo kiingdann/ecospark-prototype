@@ -24,8 +24,16 @@ svg{display:block}
 /* Device */
 .device{position:relative;width:393px;height:852px;border-radius:48px;overflow:hidden;background:var(--surface-page);box-shadow:0 0 0 10px #1b1410,0 30px 60px #4a2f1b40;isolation:isolate}
 @media (max-width:520px),(max-height:700px) and (max-width:900px){
+  /* Real phone: no fake status bar, full screen, safe areas, no page scroll or bounce */
+  html,body{height:100%;overflow:hidden;overscroll-behavior:none}
   body{display:block;background:var(--surface-page)}
-  .device{width:100vw;height:100dvh;border-radius:0;box-shadow:none}
+  .device{position:fixed;inset:0;width:auto;height:auto;border-radius:0;box-shadow:none}
+  .statusbar{display:none}
+  .top-space{height:calc(env(safe-area-inset-top,0px) + 8px)}
+  .screen{padding-bottom:env(safe-area-inset-bottom,0px)}
+  .tabbar,.ptabbar{margin-bottom:calc(-1 * env(safe-area-inset-bottom,0px));padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))}
+  .sheet{padding-bottom:calc(28px + env(safe-area-inset-bottom,0px))}
+  .scroll{overscroll-behavior:contain}
 }
 .statusbar{position:absolute;top:0;left:0;right:0;height:54px;padding:20px 28px 0;font:800 14px/18px var(--f-body);z-index:40;pointer-events:none;color:var(--text)}
 .statusbar.light{color:#fff}
