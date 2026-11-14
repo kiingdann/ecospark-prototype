@@ -243,6 +243,7 @@ svg{display:block}
 .shelf{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:16px;padding:0 0 10px}
 .shelf::after{content:"";position:absolute;left:0;right:0;bottom:0;height:7px;border-radius:4px;background:var(--wood-dark)}
 .ttile{height:58px;border-radius:12px;background:#fff;box-shadow:0 0 0 2px var(--line),0 3px 0 var(--line-dark);display:flex;flex-direction:column;align-items:center;justify-content:center;font:800 13px/16px var(--f-body);gap:2px}
+.ttile{width:100%;color:var(--cocoa)}.ttile:active{transform:translateY(2px)}
 .ttile .ic{width:28px;height:28px}
 .ttile.missing{background:#ffffff40;box-shadow:none;border:2.5px dashed #fff;font:700 15px/18px var(--f-display);color:var(--cocoa)}
 

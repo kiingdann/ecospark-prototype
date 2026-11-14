@@ -134,7 +134,7 @@ SCREENS['k/info']=arg=>{const [kind,item0]=arg.split('/');const item=item0||'Tin
  <div class="picture">${ic('Material/'+item,'s64')}</div><div class="col gap4">${body}</div>${btn(btnL,{act:'back'})}</div></div>`}};
 
 /* T · Treasury */
-function shed(empty){const items=empty?[]:Object.entries(S.shelf);const tiles=[];for(let i=0;i<12;i++){const it=items[i];tiles.push(it?`<div class="ttile">${ic('Material/'+it[0])}${it[1]}</div>`:'<div class="ttile missing">?</div>')}
+function shed(empty){const items=empty?[]:Object.entries(S.shelf);const tiles=[];for(let i=0;i<12;i++){const it=items[i];tiles.push(it?`<button class="ttile" data-act="treasure" data-arg="${esc(it[0])}" aria-label="${esc(it[0])}">${ic('Material/'+it[0])}${it[1]}</button>`:'<button class="ttile missing" data-act="treasure" data-arg="?" aria-label="Missing treasure">?</button>')}
  return `<div class="shed"><div class="roof">${(window.GARDEN||{}).roof||''}<button class="roof-sign" data-go="k/builds">My builds ${ic('UI/Chevron right','s20')}</button></div><div class="wall">${[0,1,2].map(r=>`<div class="shelf">${tiles.slice(r*4,r*4+4).join('')}</div>`).join('')}</div></div>`}
 function progressCard(empty){const n=empty?0:found();const hideScans=S.c5==='B'&&S.scansLeft>0;
  const pill=hideScans?'':`<span class="scans-pill light">${ic('UI/Camera')}${S.scansLeft<=0?'Back tomorrow':S.scansLeft+' scan'+(S.scansLeft===1?'':'s')+' left today'}</span>`;
@@ -152,6 +152,15 @@ SCREENS['k/treasury']=()=>{const empty=S.firstDay;const ready=readyBuilds();cons
   ${others.length?`<button class="morelink" data-go="k/builds"><span class="mini">${ic('Build/'+others[0])}</span>${others[1]?`<span class="mini" style="margin-left:-12px">${ic('Build/'+others[1])}</span>`:''}${others.length} more almost ready ${ic('UI/Chevron right','s20')}</button>`:''}`}
  return `<div class="screen"><div class="top-space"></div>${kidHeader('Treasury')}<div class="scroll"><div class="col gap16 pad" style="padding-bottom:24px">${progressCard(empty)}${shed(empty)}<div class="zone">${zone}</div>
  ${empty?btn('Scan something',{icon:'UI/Camera',go:'k/scan'}):''}${!empty&&found()>=12?btn('See my builds',{style:'accent',go:'k/builds'}):''}</div></div>${tabbar('Treasury')}</div>`};
+
+/* TS · Treasure sheet (TL2, Proposal, 14 Nov) */
+ACTIONS.treasure=m=>sheet('treasure',m);
+SHEETS.treasure=m=>{if(m==='?')return `<div class="row gap16"><span class="icon-tile" style="width:88px;height:88px"><span class="display-xl">?</span></span><div class="col gap4 grow"><div class="display-lg">Find this one!</div><div class="body-md muted">Scan something new to fill this spot.</div></div></div>${btn('Scan',{icon:'UI/Camera',act:'sheetGo',arg:'k/scan'})}${btn('Close',{style:'secondary',act:'close'})}`;
+ const n=S.shelf[m]||1;const hasLearn=LEARN.includes(m);const p=hasLearn?lp(m):null;
+ return `<div class="row gap16"><span class="icon-tile" style="width:88px;height:88px">${ic('Material/'+m,'s64')}</span><div class="col gap4 grow"><div class="display-lg">${esc(m)}</div><div class="body-md muted">You found ${n}. Great rescue!</div><span class="family-chip" style="align-self:flex-start">${FAMILY[m]||'Other'}</span></div></div>
+ ${hasLearn?`<div class="learnrow" style="padding:12px 16px"><span class="name">Learn</span><span class="mini3"><i class="${p.video?'done':''}">${ic('UI/Video')}</i><i class="${p.quiz?'done':''}">${ic('UI/Quiz')}</i><i class="${p.story?'done':''}">${ic('UI/Headphones')}</i></span></div>${btn('Learn about it',{icon:'UI/Learn',act:'sheetGo',arg:'k/path/'+m})}${btn('What can I build?',{style:'secondary',act:'sheetGo',arg:'k/builds'})}`
+ :`<div class="offline">${ic('UI/Clock','s20')}Videos about the ${esc(m.toLowerCase())} are coming soon.</div>${btn('What can I build?',{act:'sheetGo',arg:'k/builds'})}${btn('Close',{style:'secondary',act:'close'})}`}`};
+ACTIONS.sheetGo=r=>go(r);
 
 /* MB2 · My builds */
 SCREENS['k/builds']=arg=>{const st=s=>Object.keys(S.builds).filter(b=>S.builds[b]===s);
