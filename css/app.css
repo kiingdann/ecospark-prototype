@@ -345,7 +345,7 @@ svg{display:block}
 .mini3 i.done{background:var(--green);box-shadow:none;color:#fff}
 .mini3 i .ic{width:16px;height:16px}
 .keepgoing{display:flex;align-items:center;gap:12px;background:var(--yellow);border-radius:var(--r-xl);padding:12px 16px 12px 12px;box-shadow:0 5px 0 var(--yellow-dark);width:100%;text-align:left}
-.keepgoing .thumb{width:44px;height:44px;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center}
+.keepgoing .thumb{width:56px;height:56px;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center}
 .stop{display:flex;align-items:center;gap:14px;text-align:left;width:100%}
 .stop .disc{width:52px;height:52px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px var(--line),0 4px 0 var(--line-dark);display:flex;align-items:center;justify-content:center;color:var(--green);flex:none}
 .stop.done .disc{background:var(--green);box-shadow:0 4px 0 var(--green-dark);color:#fff}
@@ -365,6 +365,16 @@ svg{display:block}
 .qa.wrong{opacity:.55}
 .offline{display:flex;align-items:center;gap:10px;background:var(--surface-tile);border-radius:var(--r-lg);padding:12px 14px;font:700 14px/20px var(--f-body)}
 
+/* Learn home · LH2 big cards */
+.lcard{display:flex;align-items:center;gap:16px;background:#fff;border-radius:var(--r-2xl);padding:12px;box-shadow:0 0 0 2px var(--line);text-align:left;width:100%}
+.lcard .lpic{width:104px;height:104px;border-radius:20px;display:flex;align-items:center;justify-content:center;flex:none;background:var(--surface-tile)}
+.lcard .lpic .ic.s64{width:72px;height:72px}
+.lbar{display:flex;gap:4px;max-width:150px}.lbar i{flex:1;height:8px;border-radius:4px;background:var(--surface-track)}.lbar i.on{background:var(--green)}
+.lplay{width:48px;height:48px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;color:#fff;background:linear-gradient(180deg,var(--green-light),var(--green));box-shadow:0 4px 0 var(--green-dark)}
+.lplay .ic{width:22px;height:22px}.lplay.off{opacity:.45}
+.lcard.soon{opacity:.85}.lcard.locked{background:var(--surface-tile);box-shadow:none;border:2.5px dashed var(--dash)}
+.lcard.locked .lpic{background:#ffffff80;color:var(--muted)}
+.lcard:active{transform:translateY(2px)}
 /* PIN */
 .pin-dots{display:flex;gap:16px;justify-content:center}
 .pin-dots i{width:20px;height:20px;border-radius:50%;border:2.5px solid var(--cocoa)}
@@ -454,6 +464,8 @@ canvas.fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z
 
 /* Corner smoothing 100% (squircle) on every rounded, non-pill element. Pills and circles stay plain. Browsers without corner-shape keep normal corners. */
 @supports (corner-shape: squircle){
+  .lcard{corner-shape:squircle;border-radius:38px}
+  .lcard .lpic{corner-shape:squircle;border-radius:32px}
   .card{corner-shape:squircle;border-radius:32px}
   .tile-bg{corner-shape:squircle;border-radius:26px}
   .tab .tile{corner-shape:squircle;border-radius:22px}
