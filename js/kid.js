@@ -248,10 +248,18 @@ SCREENS['k/learn']=()=>{
  return `<div class="screen"><div class="top-space"></div>${kidHeader('Learn')}<div class="scroll"><div class="col gap12 pad" style="padding-bottom:20px">
  ${S.offline?`<div class="offline">${ic('UI/Wifi off')}No internet. Videos and stories need it. Your progress is saved.</div>`:nx?`<button class="keepgoing" data-go="k/${nx[0]}/${started}"><span class="thumb">${ic('Material/'+started,'s36')}</span><span class="grow col"><span class="label-md">Keep going · ${esc(started)}</span><span class="title-md">${nx[1]}</span></span><span class="lplay">${ic('UI/Play')}</span></button>`:''}
  ${withPath.map(learnCard).join('')}${soon.map(soonCard).join('')}${found.length<12?lockedCard():''}${S.offline?btn('Try again',{style:'secondary',act:'retry'}):''}</div></div>${tabbar('Learn')}</div>`};
-SCREENS['k/path']=m=>{m=m||'Tin can';const p=lp(m);const nextKey=!p.video?'video':!p.quiz?'quiz':!p.story?'story':null;
- const stop=(k,i,icn,lab,sub)=>`<button class="stop ${p[k]?'done':''} ${nextKey===k?'next':''}" data-act="openStop" data-arg="${k}/${m}"><span class="disc">${ic(p[k]?'UI/Check':icn)}</span><span class="col"><span class="label-sm muted">${i} · ${lab}</span><span class="title-sm">${esc(sub)}</span></span></button>`;
- return `<div class="screen"><div class="top-space"></div>${topbar(m)}<div class="scroll"><div class="col gap20 pad" style="padding-bottom:20px">${stop('video',1,'UI/Video','Watch','What is it? Where does it go?')}${stop('quiz',2,'UI/Quiz','Play','What does it become?')}${stop('story',3,'UI/Headphones','Listen','How it helps wildlife')}
- ${sproutBubble('Talk A',`Finish all 3 to become a ${m} expert!`,64)}${btn('Then: build something',{style:'secondary',icon:'UI/Star',go:'k/builds'})}</div></div>${tabbar('Learn')}</div>`};
+/* L2 · Learn path = LP2 trail (Dahaba, 15 Nov) */
+SCREENS['k/path']=m=>{m=m||'Tin can';const p=lp(m);const nextKey=['video','quiz','story'].find(k=>!p[k]);const all=!nextKey;
+ const STOPS=[['video','1 · Watch','What is it? Where does it go?','UI/Video'],['quiz','2 · Play','What does it become?','UI/Quiz'],['story','3 · Listen',`How it helps wildlife`,'UI/Headphones']];
+ const rows=STOPS.map(([k,lab,title,icn],i)=>{const st=p[k]?'done':k===nextKey?'next':'todo';const right=i%2===1;
+  const stop=`<button class="tstop ${st}" data-act="openStop" data-arg="${k}/${m}" aria-label="${esc(lab+': '+title)}"><span class="tdisc">${ic(st==='done'?'UI/Check':icn)}</span><span class="tlabel"><span class="label-sm muted">${lab}</span><span class="title-sm">${esc(title)}</span></span></button>`;
+  const buddy=st==='next'?`<div class="tbuddy">${sprout('Talk A',48)}<div class="bubble">Tap to play!</div></div>`:'';
+  return `<div class="trow ${right?'right':''}">${right?buddy+stop:stop+buddy}</div>`}).join('');
+ return {html:`<div class="screen"><div class="top-space"></div>${topbar(m)}<div class="scroll"><div class="pad" style="padding-bottom:20px"><div class="trail"><svg class="tpath" aria-hidden="true"><path/></svg>${rows}
+ <button class="texpert ${all?'won':''}" ${all?`data-go="k/expert/${m}"`:''}><span class="tdisc sm">${ic('UI/Star')}</span><span class="grow col"><span class="title-md">${esc(m)} expert</span><span class="body-sm muted">${all?'You did it! +10 sparks':'Finish all 3 to win +10 sparks'}</span></span>${all?'':ic('UI/Lock','s20')}</button></div></div></div>${tabbar('Learn')}</div>`,
+ after(app){const tr=app.querySelector('.trail');if(!tr)return;const draw=()=>{const b=tr.getBoundingClientRect();const pts=[...tr.querySelectorAll('.tdisc:not(.sm)')].map(d=>{const r=d.getBoundingClientRect();return [r.left-b.left+r.width/2,r.top-b.top+r.height/2]});
+  let dp=`M ${pts[0][0]} ${pts[0][1]}`;for(let i=1;i<pts.length;i++){const [x0,y0]=pts[i-1],[x1,y1]=pts[i];const my=(y0+y1)/2;dp+=` C ${x0} ${my} ${x1} ${my} ${x1} ${y1}`}
+  const svg=tr.querySelector('.tpath');svg.setAttribute('width',b.width);svg.setAttribute('height',b.height);svg.querySelector('path').setAttribute('d',dp)};requestAnimationFrame(draw)}}};
 ACTIONS.openStop=a=>{if(S.offline&&a.split('/')[0]!=='quiz'){toast('Videos and stories need the internet','UI/Wifi off');return}go('k/'+a)};
 function media(kind,m){return `<div class="media"><div class="track"><i id="trk" style="width:${lp(m)[kind]?100:0}%"></i></div><button class="play" data-act="play" data-arg="${kind}/${m}" aria-label="Play">${ic('UI/Play')}</button></div>`}
 let playing=null;
