@@ -185,10 +185,11 @@ SHEETS.grownups=()=>`<div class="gu-note" style="font:700 18px/22px var(--f-disp
  <div class="col gap8"><div class="body-md-bold">Check the item</div><div class="body-md muted" style="font-size:15px">Use an empty, clean, dry yoghurt pot with a broad base and smooth, unbroken rim. Remove the foil lid completely. Choose short crayons that stick out above the rim.</div>
  <div class="body-md-bold">Get ready</div><div class="body-md muted" style="font-size:15px">Wash, dry and inspect the pot. The label is optional. Keep scissors with you. Use child-suitable paper glue only on the paper overlap.</div></div>${btn("We're ready",{act:'startBuild',arg:'Crayon Crew'})}`;
 ACTIONS.startBuild=name=>{if(name!=='Crayon Crew'){closeOverlay();toast(`Only Crayon Crew has steps in this prototype`,'UI/Steps');return}S.currentBuild=name;S.buildStep=1;go('k/step/1')};
+if(EC.PV&&EC.PV.steps)STEPS.splice(0,STEPS.length,...EC.PV.steps);
 SCREENS['k/step']=n=>{n=Math.min(4,Math.max(1,+n||1));const s=STEPS[n-1];S.buildStep=n;if(n>1)S.continueKind=S.continueKind==='news'?S.continueKind:S.continueKind;
- const text=n===4&&S.ages==='9-12'?s.text912:s.text;
+ const text=S.ages==='9-12'&&s.text912?s.text912:s.text;
  return `<div class="screen"><div class="top-space"></div><div class="cam-top" style="padding:0 16px">${round('UI/Close','data-act="quitBuild"',{label:'Close'})}<div class="stepprog">Step ${n} of 4<div class="segs">${[1,2,3,4].map(i=>`<i class="${i<=n?'on':''}"></i>`).join('')}</div></div>${round('UI/Speaker',`data-act="speak" data-arg="${esc(s.title+'. '+text)}"`)}</div>
- <div class="scroll"><div class="col gap16 pad" style="padding-top:16px;padding-bottom:16px"><div class="stepcard"><div class="gif">${ic(s.pic,'s120')}</div>
+ <div class="scroll"><div class="col gap16 pad" style="padding-top:16px;padding-bottom:16px"><div class="stepcard"><div class="gif">${s.img?`<img src="${esc(s.img)}" alt="" style="width:100%;height:100%;object-fit:contain">`:ic(s.pic,'s120')}</div>
  ${s.gu?`<span class="gu-chip"><span class="hand">${ic('UI/Hand')}</span>With a grown-up</span>`:''}${s.opt?`<span class="opt-chip"><span class="star">${ic('UI/Star')}</span>You can skip this one</span>`:''}
  <div class="display-lg">${esc(s.title)}</div><div class="body-md" style="font-weight:600">${esc(text)}</div></div>
  <div class="stepnav">${btn('Back',{style:'secondary',act:n===1?'back':'stepGo',arg:n-1})}${btn(n===4?'I made it!':'Next',{act:n===4?'madeIt':'stepGo',arg:n+1})}</div>
@@ -272,13 +273,14 @@ SCREENS['k/story']=m=>{m=m||'Tin can';return `<div class="screen"><div class="to
 const QUIZ=[['What can an old tin can become?',[['A new can','Material/Tin can',1],['A tree','Build/Plant Pal',0]],'Yes! Tins come back again and again.'],
  ['What do you do first?',[['Rinse it','UI/Refresh',1],['Throw it away','UI/Trash',0]],'Yes! A clean tin is easier to recycle.'],
  ['Who checks sharp edges?',[['A grown-up','UI/Hand',1],['Nobody','UI/Close',0]],'Yes! Sharp lids are for grown-ups.']];
-let quiz={q:0,pick:null};
+if(EC.PV&&EC.PV.quiz)QUIZ.splice(0,QUIZ.length,...EC.PV.quiz);
+let quiz={q:Math.min(QUIZ.length-1,(EC.PV&&EC.PV.q)||0),pick:null};
 SCREENS['k/quiz']=m=>{m=m||'Tin can';const [qq,ans,ok]=QUIZ[quiz.q];const picked=quiz.pick!==null;const right=picked&&ans[quiz.pick][2];
- return `<div class="screen"><div class="top-space"></div><div class="cam-top" style="padding:0 16px">${round('UI/Close','data-act="quitQuiz"',{label:'Close'})}<div class="stepprog">Question ${quiz.q+1} of 3<div class="segs" style="width:120px">${[0,1,2].map(i=>`<i class="${i<=quiz.q?'on':''}"></i>`).join('')}</div></div>${round('UI/Speaker',`data-act="speak" data-arg="${esc(qq+' '+ans.map(a=>a[0]).join(' or '))}"`)}</div>
+ return `<div class="screen"><div class="top-space"></div><div class="cam-top" style="padding:0 16px">${round('UI/Close','data-act="quitQuiz"',{label:'Close'})}<div class="stepprog">Question ${quiz.q+1} of ${QUIZ.length}<div class="segs" style="width:120px">${QUIZ.map((_,i)=>i).map(i=>`<i class="${i<=quiz.q?'on':''}"></i>`).join('')}</div></div>${round('UI/Speaker',`data-act="speak" data-arg="${esc(qq+' '+ans.map(a=>a[0]).join(' or '))}"`)}</div>
  <div class="scroll"><div class="col gap20 pad" style="padding-top:20px"><div class="display-lg center">${esc(qq)}</div><div class="quiz">${ans.map((a,i)=>`<button class="qa ${picked?(a[2]?'correct':i===quiz.pick?'wrong':''):''}" data-act="answer" data-arg="${i}">${ic(a[1])}${esc(a[0])}${picked&&a[2]?`<span class="badge">${ic('Status/Check badge','s28')}</span>`:''}</button>`).join('')}</div>
  ${picked?sproutBubble(right?'Happy':'Talk A',right?ok:'Not quite. Try the other one!',64):''}${picked&&right?btn('Next',{act:'nextQ',arg:m}):''}</div></div></div>`};
 ACTIONS.answer=i=>{if(quiz.pick!==null&&QUIZ[quiz.q][1][quiz.pick][2])return;quiz.pick=+i;render()};
-ACTIONS.nextQ=m=>{if(quiz.q<2){quiz={q:quiz.q+1,pick:null};render()}else{quiz={q:0,pick:null};finish('quiz',m)}};
+ACTIONS.nextQ=m=>{if(quiz.q<QUIZ.length-1){quiz={q:quiz.q+1,pick:null};render()}else{quiz={q:0,pick:null};finish('quiz',m)}};
 ACTIONS.quitQuiz=()=>{quiz={q:0,pick:null};back('k/learn')};
 SCREENS['k/expert']=m=>{m=m||'Tin can';return {after(){EC.burst()},html:`<div class="screen"><div class="top-space"></div><div class="scroll col gap16 pad center" style="padding-top:30px">${confetti()}${sprout('Happy',112)}<div class="display-xl" style="font-size:34px">${esc(m)} expert!</div><div class="row gap12">${ic('UI/Star','s44')}${ic('UI/Star','s44')}${ic('UI/Star','s44')}</div>
  <div class="body-md" style="font-weight:600">You finished all 3 steps. Harder ${esc(m.toLowerCase())} builds are now open!</div><span class="sparks sm">${ic('UI/Sparks')}+10</span></div>

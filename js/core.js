@@ -1,6 +1,7 @@
 /* EcoSpark for Kids · prototype core: state, router, helpers, settings panel */
 (function(){
-const LS='ecospark-proto-v1';
+const QS=new URLSearchParams(location.search);const EMBED=QS.has('embed');let PV=null;try{PV=JSON.parse(QS.get('pv')||'null')}catch(e){}
+const LS=EMBED?'ecospark-proto-embed':'ecospark-proto-v1';
 const MATERIALS=['Plastic bottle','Bottle top','Cardboard box','Egg box','Newspaper','Tin can','Yoghurt pot','Drinks can','Plastic cup','Kitchen roll tube','Glass jar','Glass bottle'];
 const FAMILY={'Tin can':'Metal','Drinks can':'Metal','Plastic bottle':'Plastic','Bottle top':'Plastic','Yoghurt pot':'Plastic','Plastic cup':'Plastic','Cardboard box':'Paper','Egg box':'Paper','Newspaper':'Paper','Kitchen roll tube':'Paper','Glass jar':'Glass','Glass bottle':'Glass'};
 function defaults(){return{
@@ -136,8 +137,8 @@ function initPanel(){const fab=document.createElement('button');fab.className='p
     else if(t.hasAttribute('data-reset')){const keep={};Object.assign(S,defaults());save();stack=[];toast('Prototype reset','UI/Refresh');go('k/w1')}});
   p.addEventListener('change',e=>{if(e.target.dataset.jump!==undefined&&e.target.value){const r=e.target.value;stack=[];go(r)}})}
 
-window.EC={burst,replaceRoute,S,save,defaults,MATERIALS,FAMILY,esc,ic,sprout,btn,round,topbar,speak,go,back,later,sheet,dialog,closeOverlay,toast,render,SCREENS,SHEETS,DIALOGS,ACTIONS,get overlay(){return overlay}};
-window.addEventListener('DOMContentLoaded',()=>{initPanel();const q=new URLSearchParams(location.search).get('start');
+window.EC={EMBED,PV,burst,replaceRoute,S,save,defaults,MATERIALS,FAMILY,esc,ic,sprout,btn,round,topbar,speak,go,back,later,sheet,dialog,closeOverlay,toast,render,SCREENS,SHEETS,DIALOGS,ACTIONS,get overlay(){return overlay}};
+window.addEventListener('DOMContentLoaded',()=>{if(EMBED){document.body.classList.add('embed');if(PV&&PV.ages)S.ages=PV.ages}else initPanel();if(QS.get('start')==='admin'){location.replace('admin.html');return}const q=new URLSearchParams(location.search).get('start');
   if(!location.hash){const r=q==='parent'?'p/home':q==='launch'?'p/splash':'k/w1';history.replaceState(null,'','#'+r)}
   stack=[cur()];render()});
 })();
