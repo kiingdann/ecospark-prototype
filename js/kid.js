@@ -28,8 +28,11 @@ const kidName=()=>S.kid||'Leo';
 const parent=()=>S.parentName||'Hannah';
 
 /* shared pieces */
-function kidHeader(title){return `<div class="kidhead"><div class="display-lg">${esc(title||kidName())}</div><div class="sparks">${ic('UI/Sparks')}${S.sparks}</div></div>`}
-function tabbar(active){const t=[['Garden','UI/Garden','k/garden'],['Treasury','UI/Shed','k/treasury'],['Scan','UI/Camera','k/scan'],['Learn','UI/Learn','k/learn'],['Grown-ups','UI/Grown-ups','k/gate']];
+/* Kid header (DS): the name opens Who's playing (switch player, Grown-ups and sign out); Tell Sprout + sparks on the right */
+function tellBtn(dark){return `<button class="tellsprout ${dark?'dark':''}" data-go="k/tell"><span class="face">${ic('Sprout/Face')}</span>Tell Sprout</button>`}
+function kidHeader(title){const name=title?`<div class="display-lg">${esc(title)}</div>`:`<button class="kname display-lg" data-go="k/w1/switch" aria-label="${esc(kidName())}: switch player or Grown-ups">${esc(kidName())}<span class="caret">▾</span></button>`;
+ return `<div class="kidhead">${name}<div class="kright">${tellBtn()}<div class="sparks">${ic('UI/Sparks')}${S.sparks}</div></div></div>`}
+function tabbar(active){const t=[['Garden','UI/Garden','k/garden'],['Shed','UI/Shed','k/treasury'],['Scan','UI/Camera','k/scan'],['Builds','UI/Builds','k/builds'],['Learn','UI/Learn','k/learn']];
  return `<nav class="tabbar">${t.map(([l,i,r])=>`<button class="tab ${l==='Scan'?'scan':''} ${active===l?'active':''}" data-go="${r}"><span class="tile">${ic(i)}</span>${l}</button>`).join('')}</nav>`}
 function sproutBubble(pose,msg,size=64){return `<div class="row gap8">${sprout(pose,size)}<div class="bubble multi">${esc(msg)}</div></div>`}
 function found(){return Object.keys(S.shelf).length}
@@ -40,30 +43,33 @@ function needText(name){return {'Bird feeder':'1 more bottle','Pencil pot':'1 mo
 function stageObj(icon,dim){return icon?`<span class="ic cam-object ${dim?'dim':''}">${(window.ICONS||{})[icon]}</span>`:''}
 function vf(){return '<div class="viewfinder"><i></i><i></i><i></i><i></i></div>'}
 function camTop(o={}){const pill=o.noPill?'<span></span>':`<span class="scans-pill">${ic('UI/Camera')}${S.scansLeft<=0?'No scans left today':S.scansLeft+' scan'+(S.scansLeft===1?'':'s')+' left today'}</span>`;
- return `<div class="cam-top">${round('UI/Close',o.close||'data-act="back"',{dark:true,label:'Close'})}${pill}<span class="spacer"></span></div>`}
-function msgCard(pose,title,line,primary,secondary){return `<div class="msgcard">${sprout(pose,64)}<div class="display-md">${esc(title)}</div><div class="body-sm muted" style="font-weight:600">${esc(line)}</div>${primary?btn(primary[0],{size:'md',...primary[1]}):''}${secondary?btn(secondary[0],{size:'md',style:'secondary',...secondary[1]}):''}</div>`}
+ return `<div class="cam-top">${round('UI/Close',o.close||'data-act="back"',{dark:true,label:'Close'})}${pill}${o.noTell?'<span class="spacer"></span>':tellBtn(true)}</div>`}
+function msgCard(pose,title,line,primary,secondary){return `<div class="msgcard"><button class="round small msg-speak" data-act="speak" data-arg="${esc(title+'. '+line)}" aria-label="Read it out loud">${ic('UI/Speaker')}</button>${sprout(pose,64)}<div class="display-md">${esc(title)}</div><div class="body-sm muted" style="font-weight:600">${esc(line)}</div>${primary?btn(primary[0],{size:'md',...primary[1]}):''}${secondary?btn(secondary[0],{size:'md',style:'secondary',...secondary[1]}):''}</div>`}
 function confetti(){const c=['#E45B4A','#2E7D32','#FFD54F','#8FD0EA','#C65A11'];let s='';for(let i=0;i<14;i++)s+=`<i style="left:${i*19}px;top:${i%2?13:0}px;background:${c[i%5]};--r:${(i%3-1)*25}deg;animation-delay:${i*.12}s"></i>`;return `<div class="confetti">${s}</div>`}
 
 /* W1 · Who's playing */
-SCREENS['k/w1']=()=>`<div class="screen"><div class="top-space"></div><div class="scroll col center gap24" style="padding:40px 16px 0">${sprout('Wave up',120)}<div class="display-xl" style="font-size:34px">Who's playing?</div>
+SCREENS['k/w1']=arg=>`<div class="screen"><div class="top-space"></div>${arg==='switch'?`<div style="padding:0 16px">${round('UI/Close','data-act="back"',{label:'Close'})}</div>`:''}<div class="scroll col center gap24" style="padding:${arg==='switch'?8:40}px 16px 0">${sprout('Wave up',120)}<div class="display-xl" style="font-size:34px">Who's playing?</div>
  <div class="row gap16 fill" style="justify-content:center">${S.children.map(c=>`<button class="action-tile" style="max-width:158px;min-height:168px;gap:14px" data-act="pickKid" data-arg="${esc(c.name)}"><span class="avatar big ${c.colour}">${esc(c.name[0])}</span><span class="title-md">${esc(c.name)}</span></button>`).join('')}</div></div>
- <button class="row gap8 center label-md muted" style="padding:16px 0 40px;font-size:16px" data-go="k/gate">${ic('UI/Lock','s20')}Grown-ups</button></div>`;
-ACTIONS.pickKid=n=>{S.kid=n;go('k/garden')};
+ <button class="row gap8 center label-md muted" style="padding:16px 0 40px;font-size:16px" data-go="k/gate">${ic('UI/Lock','s20')}Grown-ups and sign out</button></div>`;
+ACTIONS.pickKid=n=>{const sw=S.kid!==n;S.kid=n;EC.go('k/garden',{replace:location.hash.includes('switch')});if(sw&&location.hash.includes('garden'))toast(`Hello ${n}!`,'UI/Garden')};
 
 /* G · Garden home */
 function gardenLayers(empty){return window.GARDEN_SCENE({empty})}
-function continueCard(){let k=S.continueKind;if(S.offline)k='offline';else if(S.firstDay)k='first';
+function continueCard(){let k=S.continueKind;if(S.offline)k='offline';else if(S.firstDay)k='first';else if(S.ideaWaiting)k='idea';else if(S.guWaiting)k='waiting';
  const C={news:['Build/Desk Post',`${parent()} says: Proud of you!`,'Your Desk Post is on your shelf','k/builds/Desk Post'],
   progress:['Build/Crayon Crew',`Crayon Crew: step ${Math.max(2,S.buildStep||2)} of 4`,'Pick up where you left off','k/step/'+Math.max(2,S.buildStep||2)],
   almost:['Build/Bird feeder','Bird feeder: 1 more bottle','Scan a plastic bottle to finish it','k/scan'],
   scan:['UI/Camera','Scan a treasure','Find something to rescue at home','k/scan'],
   first:['UI/Camera','Scan your first treasure','Your garden grows when you scan, build and learn','k/scan'],
-  offline:['UI/Wifi off','No internet right now','Your garden is safe. Try again in a bit.','']}[k];
- return `<button class="continue" ${C[3]?`data-go="${C[3]}"`:'data-act="retry"'}><span class="peek">${sprout('Idle',84)}</span><span class="ictile">${ic(C[0],'s36')}</span><span class="grow col gap4"><span class="title-md">${esc(C[1])}</span><span class="body-sm muted">${esc(C[2])}</span></span>${ic('UI/Chevron right','s20')}</button>`}
+  offline:['UI/Wifi off','No internet right now','Your garden is safe. Try again in a bit.',''],
+  idea:['Build/'+((S.ideaWaiting||{}).build||'Bird feeder'),`${parent()}'s idea for your ${(S.ideaWaiting||{}).build||'Bird feeder'}`,((S.ideaWaiting||{}).note||'').replace(/^Can you /,'').replace(/\?$/,'').replace(/^./,c=>c.toUpperCase()),'k/retry'],
+  waiting:['Build/'+(S.guWaiting||'Crayon Crew'),`${S.guWaiting||'Crayon Crew'}: step 1 of 4`,'Waiting for a grown-up','k/step/1']}[k];
+ const speaker=k==='news'||k==='idea'?`<button class="round small cspeak" data-act="speak" data-arg="${esc(C[1]+'. '+C[2])}" aria-label="Read it out loud">${ic('UI/Speaker')}</button>`:'';
+ return `<div role="button" tabindex="0" class="continue" ${C[3]?`data-go="${C[3]}"`:'data-act="retry"'}><span class="peek">${sprout('Idle',84)}</span><span class="ictile">${ic(C[0],'s36')}</span><span class="grow col gap4"><span class="title-md">${esc(C[1])}</span><span class="body-sm muted">${esc(C[2])}</span></span>${speaker}${ic('UI/Chevron right','s20')}</div>`}
 SCREENS['k/garden']=(arg)=>{
  if(S.kidCelebrate&&!arg)return SCREENS['k/approved']('');
  if(S.kidRetry&&!arg)return SCREENS['k/retry']('');
- return {html:`<div class="screen sky"><div class="garden">${gardenLayers(S.firstDay)}</div><div class="top-space" style="position:relative;z-index:2"></div><div style="position:relative;z-index:2">${kidHeader('Hello '+kidName()+' 👋')}</div>
+ return {html:`<div class="screen sky"><div class="garden">${gardenLayers(S.firstDay)}</div><div class="top-space" style="position:relative;z-index:2"></div><div style="position:relative;z-index:2">${kidHeader()}</div>
  ${S.weekly&&!S.firstDay?`<div style="position:relative;z-index:2;padding:0 16px"><button class="theme-pill" data-act="theme">${ic('Visitor/Bird')}This week: Autumn birds</button></div>`:''}
  <div class="grow"></div><div style="position:relative;z-index:2;padding:0 16px 14px">${continueCard()}</div>${tabbar('Garden')}</div>`,
  after(){if(arg&&!EC.overlay){EC.replaceRoute('k/garden');}if(arg&&!EC.overlay)ACTIONS[{plant:'plant',visitor:'visitor',recycled:'recycled',theme:'theme'}[arg]]?.('Sunflower')}};
@@ -72,7 +78,7 @@ ACTIONS.plant=k=>sheet('plant',k||'Sunflower');
 ACTIONS.visitor=()=>sheet('visitor');
 ACTIONS.recycled=()=>sheet('recycled');
 ACTIONS.theme=()=>sheet('theme');
-ACTIONS.nextFlower=()=>toast(`${100-Math.min(100,S.firstDay?0:S.garden)} more sparks to grow your next flower`);
+ACTIONS.nextFlower=()=>{const n=100-Math.min(100,S.firstDay?0:S.garden);speak(n?`${n} more sparks and a new flower grows!`:'A new flower is growing!')};
 ACTIONS.retry=()=>{toast('Still no internet. Try again in a bit.','UI/Wifi off')};
 SHEETS.plant=k=>`<div class="row gap16">${ic('Plant/'+k,'s64')}<div class="col gap4"><div class="display-lg">${esc(k)}</div><div class="body-md muted">Grew with your sparks</div><div class="label-sm muted">10 Nov</div></div></div>${btn('Close',{act:'close'})}`;
 SHEETS.visitor=()=>`<div class="row gap16">${ic('Visitor/Bird','s96')}<div class="col gap4 grow"><div class="display-lg">A robin came to visit!</div><div class="body-md muted">Your Bird feeder is outside. Robins love seeds in autumn.</div></div></div>${btn('Yay!',{act:'close'})}`;
@@ -91,8 +97,8 @@ SCREENS['k/scan']=()=>{
  if(S.scansLeft<=0)return SCREENS['k/state']('nomore');
  const item=outcomeItem(nextOutcome());
  return {light:true,html:`<div class="screen dark">${'<div class="top-space"></div>'}${camTop({close:'data-go="k/garden"'})}<div class="stage">${stageObj(item?'Material/'+item:null)}${vf()}</div>
- <div class="hint-chip">Hold it still</div><div class="cam-bottom">${sproutBubble('Talk A','Show me one thing. No people, just things!')}<button class="shutter" data-act="shoot" aria-label="Take the photo">${ic('UI/Camera')}</button></div></div>`}};
-ACTIONS.shoot=()=>{document.querySelector('.device').insertAdjacentHTML('beforeend','<div class="flash"></div>');setTimeout(()=>document.querySelector('.flash')?.remove(),400);
+ ${S.scanBack?`<div class="hint-chip back">${ic('UI/Refresh','s16')}Your scan is back</div>`:'<div class="hint-chip">Hold it still</div>'}<div class="cam-bottom">${sproutBubble('Talk A',S.scanBack?'Thanks for telling me! Show me again.':'Show me one thing. No people, just things!')}<button class="shutter" data-act="shoot" aria-label="Take the photo">${ic('UI/Camera')}</button></div></div>`}};
+ACTIONS.shoot=()=>{S.scanBack=false;document.querySelector('.device').insertAdjacentHTML('beforeend','<div class="flash"></div>');setTimeout(()=>document.querySelector('.flash')?.remove(),400);
  if(S.offline)return go('k/state/offline');go('k/checking',{replace:true})};
 SCREENS['k/checking']=()=>{const o=nextOutcome();const item=outcomeItem(o);
  return {light:true,html:`<div class="screen dark"><div class="top-space"></div>${camTop({close:'data-go="k/garden"'})}<div class="stage">${stageObj(item?'Material/'+item:null)}${vf()}</div>${msgCard('Blink','Checking…','Looking closely…')}</div>`,
@@ -107,7 +113,7 @@ SCREENS['k/state']=k=>{const ST={
   unsure:['Talk A',"Hmm, I'm not sure",'Try one thing, closer, in good light.',['Try again',{go:'k/scan'}]],
   battery:['Surprised','Careful! Grown-ups only','Batteries can be dangerous. Ask a grown-up to take it to a special recycling point.',['Ask a grown-up',{go:'k/gate'}],['Scan something else',{go:'k/scan'}]],
   nomore:['Blink',"That's all for today",'Come back tomorrow for more treasure hunting!',['Build something',{go:'k/builds'}],['Back to my Garden',{go:'k/garden'}]],
-  camera:['Talk A','I need the camera','Ask a grown-up to turn it on so I can see your treasures.',['Ask a grown-up',{go:'k/gate'}],['Back',{go:'k/garden'}]],
+  camera:['Talk A','I need the camera','A grown-up can turn it on in a minute. Show them this screen.',['Get a grown-up',{go:'k/gate/camera'}],['Back',{go:'k/garden'}]],
   offline:['Surprised','No internet right now','Scanning needs the internet. Try again in a bit.',['Try again',{go:'k/scan'}],['Back to my Garden',{go:'k/garden'}]],
   other:['Talk A',"Let's pick something else",'Try a bottle, a box or a tin.',['Try again',{go:'k/scan'}]]}[k]||[];
  if((k==='person'||k==='unsure'||k==='other')&&S.nextScan!=='auto')S.nextScan='auto';
@@ -120,7 +126,13 @@ SCREENS['k/result']=item=>{item=item||'Tin can';const isNew=item==='Tin can';con
  <div class="actions3">${isNew?`<button class="action-tile" data-go="k/info/ready/${item}"><span class="disc">${ic('UI/Hand')}</span>Get it ready</button>`:''}<button class="action-tile" data-go="k/info/recycle/${item}"><span class="disc">${ic('UI/Refresh')}</span>Recycle it</button><button class="action-tile" data-go="k/info/fact/${item}"><span class="disc">${ic('UI/Star')}</span>Fun fact</button></div></div></div>
  <div class="col gap8 pad" style="padding-bottom:28px">${btn('Scan another',{icon:'UI/Camera',act:'scanAnother'})}<button class="link muted" data-act="notRight">That's not right</button></div></div>`};
 ACTIONS.scanAnother=()=>go(S.scansLeft<=0?'k/state/nomore':'k/scan');
-ACTIONS.notRight=()=>{toast("Thanks for telling me! Let's try again.",'UI/Refresh');go('k/scan')};
+ACTIONS.notRight=()=>sheet('notright',(location.hash.split('/')[2]?decodeURIComponent(location.hash.split('/').slice(2).join('/')):'Tin can'));
+SHEETS.notright=item=>`<div class="col center gap12">${sprout('Talk A',64)}<div class="display-lg">Not a ${esc(item.toLowerCase())}?</div><div class="body-md muted" style="font-weight:600">No problem! I'll take it off your shelf and give your scan back.</div></div>${btn('Scan it again',{icon:'UI/Camera',act:'undoScan',arg:item})}${btn('It is a '+item.toLowerCase(),{style:'secondary',act:'close'})}`;
+/* NR2: the treasure comes off the shelf, the scan comes back. The correction is what the admin sees in Moderation > Answers. */
+ACTIONS.undoScan=item=>{const n=(S.shelf[item]||1)-1;if(n>0)S.shelf[item]=n;else delete S.shelf[item];
+ if(item==='Tin can'){S.sparks=Math.max(0,S.sparks-10);S.garden=Math.max(0,S.garden-10);if(S.builds['Pencil pot']==='ready'&&S.justReady==='Pencil pot'){S.builds['Pencil pot']='almost';S.justReady=null}}
+ else if(S.builds['Bird feeder']==='ready'&&S.justReady==='Bird feeder'){S.builds['Bird feeder']='almost';S.justReady=null}
+ S.rescued=Math.max(0,S.rescued-1);S.scansLeft=Math.min(3,S.scansLeft+1);S.scanCount=Math.max(0,S.scanCount-1);S.scanBack=true;go('k/scan',{replace:true})};
 SCREENS['k/info']=arg=>{const [kind,item0]=arg.split('/');const item=item0||'Tin can';const d=SCAN[item]||SCAN['Tin can'];
  const title={ready:'Get it ready',recycle:'Recycle it',fact:'Fun fact'}[kind];const btnL={ready:'Done',recycle:'Got it',fact:'Cool!'}[kind];
  const lines=kind==='fact'?null:(kind==='ready'?d.ready||SCAN['Tin can'].ready:d.recycle);
@@ -146,8 +158,8 @@ SCREENS['k/treasury']=()=>{const empty=S.firstDay;const ready=readyBuilds();cons
   const others=almostBuilds();
   zone=`${sproutBubble('Talk A',msg,44)}${S.sentBuild?`<div class="buildcard" style="box-shadow:0 0 0 2px var(--line)"><div class="thumb">${ic('Build/'+S.sentBuild,'s44')}</div><div class="grow"><div class="title-md">Waiting for ${parent()}</div><div class="body-sm muted">Your ${esc(S.sentBuild)} is on its way</div></div><div class="spinner" style="width:28px;height:28px"></div></div>`:first?buildCard(first):''}
   ${others.length?`<button class="morelink" data-go="k/builds"><span class="mini">${ic('Build/'+others[0])}</span>${others[1]?`<span class="mini" style="margin-left:-12px">${ic('Build/'+others[1])}</span>`:''}${others.length} more almost ready ${ic('UI/Chevron right','s20')}</button>`:''}`}
- return `<div class="screen"><div class="top-space"></div>${kidHeader('Treasury')}<div class="scroll"><div class="col gap16 pad" style="padding-bottom:24px">${progressCard(empty)}${shed(empty)}<div class="zone">${zone}</div>
- ${empty?btn('Scan something',{icon:'UI/Camera',go:'k/scan'}):''}${!empty&&found()>=12?btn('See my builds',{style:'accent',go:'k/builds'}):''}</div></div>${tabbar('Treasury')}</div>`};
+ return `<div class="screen"><div class="top-space"></div>${kidHeader()}<div class="scroll"><div class="col gap16 pad" style="padding-bottom:24px">${progressCard(empty)}${shed(empty)}<div class="zone">${zone}</div>
+ ${empty?btn('Scan something',{icon:'UI/Camera',go:'k/scan'}):''}${!empty&&found()>=12?btn('See my builds',{style:'accent',go:'k/builds'}):''}</div></div>${tabbar('Shed')}</div>`};
 
 /* TS · Treasure sheet (TL2, Proposal, 14 Nov) */
 ACTIONS.treasure=m=>sheet('treasure',m);
@@ -164,46 +176,59 @@ SCREENS['k/builds']=arg=>{const st=s=>Object.keys(S.builds).filter(b=>S.builds[b
  const tile=b=>{const s=S.builds[b];return `<div role="button" tabindex="0" class="btile ${s==='ready'?'ready':''}" ${s==='built'||s==='sent'?`data-act="builtSheet" data-arg="${esc(b)}"`:`data-go="k/build/${b}"`}><span class="pic">${ic('Build/'+b,'s44')}</span><span class="title-sm">${esc(b)}</span>
   ${s==='ready'?btn('Build it',{size:'sm',go:'k/build/'+b}):s==='built'?`<span class="need" style="color:var(--green)">${ic('Status/Check badge','s16')}Built</span>`:s==='sent'?`<span class="need">Waiting for ${parent()}</span>`:`<span class="need"><span class="slot missing">${ic('Material/'+(BUILDS[b].needs[0]))}</span>${needText(b)}</span>`}</div>`};
  const r=st('ready').length,a=st('almost').length+st('need').length,bu=st('built').length+st('sent').length;
- return {html:`<div class="screen"><div class="top-space"></div>${topbar('My builds')}<div class="scroll"><div class="col gap16 pad" style="padding-bottom:28px"><div class="progcard"><div class="title-md">${r} ready to build</div><div class="body-sm muted" style="margin-top:4px;font-weight:600">${a} almost there · ${bu} built</div></div>
- ${groups.filter(g=>g[1].length).map(([t,l])=>`<div class="col gap8"><div class="row" style="justify-content:space-between"><div class="title-md">${t}</div><span class="label-md muted">${l.length}</span></div><div class="shelfbox"><div class="btiles">${l.map(tile).join('')}</div></div></div>`).join('')}</div></div></div>`,
+ return {html:`<div class="screen"><div class="top-space"></div>${kidHeader('Builds')}<div class="scroll"><div class="col gap16 pad" style="padding-bottom:28px"><div class="progcard"><div class="title-md">${r} ready to build</div><div class="body-sm muted" style="margin-top:4px;font-weight:600">${a} almost there · ${bu} built</div></div>
+ ${groups.filter(g=>g[1].length).map(([t,l])=>`<div class="col gap8"><div class="row" style="justify-content:space-between"><div class="title-md">${t}</div><span class="label-md muted">${l.length}</span></div><div class="shelfbox"><div class="btiles">${l.map(tile).join('')}</div></div></div>`).join('')}</div></div>${tabbar('Builds')}</div>`,
  after(){if(arg&&!EC.overlay){EC.replaceRoute('k/builds');ACTIONS.builtSheet(arg)}}}};
 ACTIONS.builtSheet=b=>sheet('built',b);
 SHEETS.built=b=>`<div class="row gap16"><span class="icon-tile" style="width:96px;height:96px">${ic('Build/'+b,'s64')}</span><div class="col gap4"><div class="display-lg">${esc(b)}</div><div class="body-sm muted" style="font-weight:600">${S.builds[b]==='sent'?'Waiting for '+parent():'Built on 10 Nov · '+parent()+' loved it'}</div>${ic('Plant/Daisy','s36')}</div></div>${btn('Build it again',{go:'k/build/'+b})}${btn('Close',{style:'secondary',act:'close'})}`;
 
 /* B · Build it */
 SCREENS['k/build']=name=>{name=name||'Crayon Crew';const d=BUILDS[name]||BUILDS['Crayon Crew'];const st=S.builds[name];const ready=st==='ready'||st==='built'||st==='sent';
- const row=([n,icn,s])=>{const miss=!ready&&(s==='tin'||s==='bottle'||s==='bottles');const state=miss?`<span class="state" style="color:var(--orange)">${needText(name).replace(/^(\d+) more.*/,'$1 more')}</span>`:s==='opt'?'<span class="state muted">Optional</span>':s==='gu'?'<span class="state" style="color:var(--orange-ink)">Grown-up only</span>':`<span class="state green">${ic('Status/Check badge')}Got it</span>`;
+ const row=([n,icn,s],home)=>{const miss=!ready&&(s==='tin'||s==='bottle'||s==='bottles');const state=miss?`<span class="state" style="color:var(--orange)">${needText(name).replace(/^(\d+) more.*/,'$1 more')}</span>`:s==='opt'?'<span class="state muted">Optional</span>':s==='gu'?'<span class="state" style="color:var(--orange-ink)">Grown-up only</span>':home?'<span class="state muted">Find it at home</span>':`<span class="state green">${ic('Status/Check badge')}In your shed</span>`;
   return `<div class="ingr ${miss?'missing':''}"><span class="pic">${ic(icn)}</span><span class="name">${esc(n)}</span>${state}</div>`};
  return `<div class="screen"><div class="top-space"></div>${topbar(name)}<div class="scroll"><div class="col gap12 pad" style="padding-bottom:20px"><div class="hero">${ic('Build/'+name,'s96')}</div>
  <div class="body-md">${esc(d.tag)}</div><div class="row gap8" style="flex-wrap:wrap"><span class="info-chip">${ic('UI/Steps')}4 steps</span><span class="info-chip">${ic('UI/Clock')}About 10 min</span><span class="info-chip">${ic('UI/Star')}Ages 5 to 9</span></div>
  <div class="gu-note">${esc(d.guNote)}<span class="hand">${ic('UI/Hand')}</span></div>
  ${!ready?`<div class="gu-note" style="background:var(--yellow);color:var(--cocoa)">Find ${needText(name)} to build this</div>`:''}
- <div class="display-md" style="margin-top:6px">What you need</div>${d.have.map(([g,rows])=>`<div class="label-md muted">${g}</div>${rows.map(row).join('')}`).join('')}</div></div>
- <div class="col gap8 pad" style="padding-bottom:22px;padding-top:8px">${ready?btn('Start building',{act:'startBuild',arg:name}):btn('Scan '+(name==='Pencil pot'?'a tin can':'a plastic bottle'),{go:'k/scan'})}${ready?`<button class="link" data-act="forGrownups">For grown-ups: read before you start</button>`:btn('Back',{style:'secondary',act:'back'})}</div></div>`};
+ <div class="display-md" style="margin-top:6px">What you need</div>${d.have.map(([g,rows])=>`<div class="label-md muted">${g}</div>${rows.map(r=>row(r,g==='From home')).join('')}`).join('')}</div></div>
+ <div class="col gap8 pad" style="padding-bottom:22px;padding-top:8px">${ready?btn('Start building',{act:'startBuild',arg:name}):btn('Scan '+(name==='Pencil pot'?'a tin can':'a plastic bottle'),{go:'k/scan'})}${ready?'':btn('Back',{style:'secondary',act:'back'})}</div></div>`};
 ACTIONS.forGrownups=()=>sheet('grownups');
 SHEETS.grownups=()=>`<div class="gu-note" style="font:700 18px/22px var(--f-display)"><span class="hand" style="margin:0">${ic('UI/Hand')}</span>For grown-ups</div>
  <div class="col gap8"><div class="body-md-bold">Check the item</div><div class="body-md muted" style="font-size:15px">Use an empty, clean, dry yoghurt pot with a broad base and smooth, unbroken rim. Remove the foil lid completely. Choose short crayons that stick out above the rim.</div>
- <div class="body-md-bold">Get ready</div><div class="body-md muted" style="font-size:15px">Wash, dry and inspect the pot. The label is optional. Keep scissors with you. Use child-suitable paper glue only on the paper overlap.</div></div>${btn("We're ready",{act:'startBuild',arg:'Crayon Crew'})}`;
-ACTIONS.startBuild=name=>{if(name!=='Crayon Crew'){closeOverlay();toast(`Only Crayon Crew has steps in this prototype`,'UI/Steps');return}S.currentBuild=name;S.buildStep=1;go('k/step/1')};
+ <div class="body-md-bold">Get ready</div><div class="body-md muted" style="font-size:15px">Wash, dry and inspect the pot. The label is optional. Keep scissors with you. Use child-suitable paper glue only on the paper overlap.</div></div>
+ <div class="offline" style="background:var(--orange-tint);color:var(--orange-ink)">${ic('UI/Lock','s20')}The code only unlocks this step. Please stay close while ${esc(kidName())} builds.</div>${btn('Type the grown-up code',{act:'sheetGo',arg:'k/gucode'})}`;
+ACTIONS.startBuild=name=>{if(name!=='Crayon Crew'){closeOverlay();toast(`Only Crayon Crew has steps in this prototype`,'UI/Steps');return}S.currentBuild=name;S.buildStep=1;S.stepUnlocked=false;go('k/step/1')};
 if(EC.PV&&EC.PV.steps)STEPS.splice(0,STEPS.length,...EC.PV.steps);
 SCREENS['k/step']=n=>{n=Math.min(4,Math.max(1,+n||1));const s=STEPS[n-1];S.buildStep=n;if(n>1)S.continueKind=S.continueKind==='news'?S.continueKind:S.continueKind;
- const text=S.ages==='9-12'&&s.text912?s.text912:s.text;
+ const locked=s.gu&&!S.stepUnlocked&&!EC.EMBED;
+ const text=locked?'This step needs a grown-up. Go and get one, then show them this screen.':S.ages==='9-12'&&s.text912?s.text912:s.text;
  return `<div class="screen"><div class="top-space"></div><div class="cam-top" style="padding:0 16px">${round('UI/Close','data-act="quitBuild"',{label:'Close'})}<div class="stepprog">Step ${n} of 4<div class="segs">${[1,2,3,4].map(i=>`<i class="${i<=n?'on':''}"></i>`).join('')}</div></div>${round('UI/Speaker',`data-act="speak" data-arg="${esc(s.title+'. '+text)}"`)}</div>
  <div class="scroll"><div class="col gap16 pad" style="padding-top:16px;padding-bottom:16px"><div class="stepcard"><div class="gif">${s.img?`<img src="${esc(s.img)}" alt="" style="width:100%;height:100%;object-fit:contain">`:ic(s.pic,'s120')}</div>
- ${s.gu?`<span class="gu-chip"><span class="hand">${ic('UI/Hand')}</span>With a grown-up</span>`:''}${s.opt?`<span class="opt-chip"><span class="star">${ic('UI/Star')}</span>You can skip this one</span>`:''}
+ ${s.gu&&S.stepUnlocked&&!locked?`<span class="unlocked-chip">${ic('UI/Check','s16')}Unlocked by a grown-up</span>`:''}${s.gu?`<span class="gu-chip"><span class="hand">${ic('UI/Hand')}</span>With a grown-up</span>`:''}${s.opt?`<span class="opt-chip"><span class="star">${ic('UI/Star')}</span>You can skip this one</span>`:''}
  <div class="display-lg">${esc(s.title)}</div><div class="body-md" style="font-weight:600">${esc(text)}</div></div>
- <div class="stepnav">${btn('Back',{style:'secondary',act:n===1?'back':'stepGo',arg:n-1})}${btn(n===4?'I made it!':'Next',{act:n===4?'madeIt':'stepGo',arg:n+1})}</div>
+ ${locked?`${btn('My grown-up is here',{act:'guHere'})}${btn('Back',{style:'secondary',act:'back'})}<button class="link" data-act="guLater">No grown-up right now? Save it for later</button>`:`<div class="stepnav">${btn('Back',{style:'secondary',act:n===1?'back':'stepGo',arg:n-1})}${btn(n===4?'I made it!':'Next',{act:n===4?'madeIt':'stepGo',arg:n+1})}</div>`}
  ${s.opt?`<button class="link" data-act="stepGo" data-arg="4">Skip this step</button>`:''}</div></div></div>`};
 ACTIONS.stepGo=n=>go('k/step/'+n,{replace:true});
+/* GB2 > GB3 > GB3b: a step-only grown-up code (set by the parent in setup, changed in Account). Never the parent PIN. */
+ACTIONS.guHere=()=>{S.guWaiting=null;go('k/build/'+(S.currentBuild||'Crayon Crew'));setTimeout(()=>sheet('grownups'),60)};
+ACTIONS.guLater=()=>{S.guWaiting=S.currentBuild||'Crayon Crew';toast('Saved. It waits on your Garden.','UI/Garden');go('k/garden')};
+let guBuf='',guErr=false;
+SCREENS['k/gucode']=()=>`<div class="screen"><div class="top-space"></div><div style="padding:0 16px">${round('UI/Arrow left','data-act="guBack"',{label:'Back'})}</div><div class="scroll col gap16 center" style="padding-top:8px"><div class="lockdisc">${ic('UI/Lock','s32')}</div><div class="display-lg">Grown-up code</div>
+ <div class="body-md ${guErr?'':'muted'} pad" style="max-width:330px;${guErr?'color:var(--danger)':''}">${guErr?"That's not the code. Try again.":'Type the code to unlock step 1. It only works for this step.'}</div>
+ <div class="pin-dots ${guErr?'shake':''}">${[0,1,2,3].map(i=>`<i class="${guErr?'err':i<guBuf.length?'on':''}"></i>`).join('')}</div>
+ <div class="pinpad" style="margin-top:8px">${[1,2,3,4,5,6,7,8,9].map(n=>`<button class="key" data-act="gu" data-arg="${n}">${n}</button>`).join('')}<span class="key blank"></span><button class="key" data-act="gu" data-arg="0">0</button><button class="key" data-act="gu" data-arg="del" aria-label="Delete">⌫</button></div></div></div>`;
+ACTIONS.guBack=()=>{guBuf='';guErr=false;back('k/step/1')};
+ACTIONS.gu=k=>{guErr=false;if(k==='del')guBuf=guBuf.slice(0,-1);else if(guBuf.length<4)guBuf+=k;render();
+ if(guBuf.length===4)setTimeout(()=>{if(guBuf===S.guCode){guBuf='';S.stepUnlocked=true;S.guWaiting=null;toast('Step 1 unlocked','UI/Lock');go('k/step/1',{replace:true})}else{guBuf='';guErr=true;render()}},250)};
 ACTIONS.quitBuild=()=>{S.continueKind='progress';toast('Saved. Pick up where you left off.','UI/Garden');go('k/garden')};
-ACTIONS.madeIt=()=>{S.buildStep=0;if(S.continueKind==='progress')S.continueKind='scan';go(S.a1?'k/where':'k/made')};
+ACTIONS.madeIt=()=>{S.buildStep=0;S.stepUnlocked=false;if(S.continueKind==='progress')S.continueKind='scan';S.sparks+=10;S.garden=Math.min(100,S.garden+10);go(S.a1?'k/where':'k/made')};
 let where=null;
 SCREENS['k/where']=()=>`<div class="screen"><div class="top-space"></div><div class="scroll col gap20 pad center" style="padding-top:40px">${sprout('Talk A',96)}<div class="display-lg">Where will your ${esc(S.currentBuild)} live?</div>
  <div class="row gap12 fill"><button class="action-tile ${where==='out'?'selected':''}" data-act="where" data-arg="out"><span class="disc">${ic('Plant/Sprout')}</span>Outside</button><button class="action-tile ${where==='in'?'selected':''}" data-act="where" data-arg="in"><span class="disc">${ic('UI/Home')}</span>Inside</button></div>
  <div class="body-md muted">Outside builds can bring a visitor to your garden!</div></div><div class="pad" style="padding-bottom:28px">${btn('Next',{go:'k/made',disabled:!where})}</div></div>`;
 ACTIONS.where=v=>{where=v;render()};
 SCREENS['k/made']=()=>{const b=S.currentBuild||'Crayon Crew';return {after(){EC.burst()},html:`<div class="screen"><div class="top-space"></div><div class="scroll col gap16 pad center" style="padding-top:24px">${confetti()}${sprout('Happy',120)}<div class="display-xl">You made it!</div>
- <div class="photo-frame"><div class="ph">${ic('Build/'+b,'s64')}</div></div><div class="body-md" style="font-weight:600">Take a photo to show ${parent()} your ${esc(b)}.</div></div>
+ <div class="photo-frame"><div class="ph">${ic('Build/'+b,'s64')}</div></div><span class="sparks sm">${ic('UI/Sparks')}+10</span><div class="body-md" style="font-weight:600">You earned 10 sparks! Show ${parent()} your ${esc(b)} for 10 more.</div></div>
  <div class="col gap12 pad" style="padding-bottom:28px">${btn('Take a photo',{icon:'UI/Camera',go:'k/photo'})}${btn('Later',{style:'secondary',act:'madeLater'})}</div></div>`}};
 ACTIONS.madeLater=()=>{S.builds[S.currentBuild]='built';go('k/garden')};
 
@@ -220,15 +245,15 @@ SCREENS['k/sent']=()=>{const b=S.sentBuild||S.currentBuild||'Bird feeder';return
 SCREENS['k/approved']=()=>{const c=S.kidCelebrate||{build:'Bird feeder',reaction:'Proud of you!',outside:true};
  return {after(){EC.burst()},html:`<div class="screen"><div class="top-space"></div><div class="scroll col gap16 pad center" style="padding-top:16px">${confetti()}${sprout('Happy',104)}<div class="display-xl" style="font-size:34px">${parent()} loved it!</div>
  <div class="photo-frame"><div class="ph">${ic('Build/'+c.build,'s64')}</div></div><span class="reaction">${ic('UI/Star')}${esc(c.reaction)}</span>
- <div class="body-lg">${c.outside?`Your ${esc(c.build)} is outside. Watch your Garden for a visitor!`:`Your ${esc(c.build)} is on your shelf.`}</div><span class="sparks sm">${ic('UI/Sparks')}+20</span></div>
+ <div class="body-lg">${c.outside?`Your ${esc(c.build)} is outside. Watch your Garden for a visitor!`:`Your ${esc(c.build)} is on your shelf.`}</div><span class="sparks sm">${ic('UI/Sparks')}+10 more</span></div>
  <div class="pad" style="padding-bottom:28px">${btn('See my Garden',{act:'seeGarden'})}</div></div>`}};
 ACTIONS.seeGarden=()=>{const c=S.kidCelebrate;S.kidCelebrate=null;if(c&&c.outside){go('k/garden/visitor')}else go('k/garden')};
-SCREENS['k/retry']=()=>{const r=S.kidRetry||{build:'Bird feeder',note:'Can you add a stick for the birds to stand on?'};
+SCREENS['k/retry']=()=>{const r=S.kidRetry||S.ideaWaiting||{build:'Bird feeder',note:'Can you add a stick for the birds to stand on?'};
  return `<div class="screen"><div class="top-space"></div><div class="scroll col gap16 pad center" style="padding-top:36px">${sprout('Talk A',104)}<div class="display-xl" style="font-size:32px">Let's try once more</div>
  <div class="photo-frame"><div class="ph">${ic('Build/'+r.build,'s64')}</div></div><div class="body-lg">${parent()} has an idea for your ${esc(r.build)}.</div><div class="body-lg" style="color:var(--orange-ink)">"${esc(r.note)}"</div></div>
- <div class="col gap12 pad" style="padding-bottom:28px">${btn('Try again',{act:'retryBuild'})}${btn('Back to my Garden',{style:'secondary',act:'retryLater'})}</div></div>`};
-ACTIONS.retryBuild=()=>{const r=S.kidRetry;S.kidRetry=null;if(r)S.currentBuild=r.build;go('k/photo')};
-ACTIONS.retryLater=()=>{S.kidRetry=null;go('k/garden/x')};
+ <div class="col gap12 pad" style="padding-bottom:28px">${btn('Try it now',{act:'retryBuild'})}${btn('Later',{style:'secondary',act:'retryLater'})}</div></div>`};
+ACTIONS.retryBuild=()=>{const r=S.kidRetry||S.ideaWaiting;S.kidRetry=null;S.ideaWaiting=null;if(r)S.currentBuild=r.build;go('k/photo')};
+ACTIONS.retryLater=()=>{const r=S.kidRetry||S.ideaWaiting;S.kidRetry=null;if(r)S.ideaWaiting=r;toast(`${parent()}'s idea waits on your Garden`,'UI/Garden');go('k/garden/x')};
 
 /* L · Learn */
 const LEARN=['Tin can','Plastic bottle','Bottle top','Cardboard box'];
@@ -240,7 +265,7 @@ const STEPNAME=[['video','1 · What is it?'],['quiz','2 · What does it become?'
 function learnCard(m){const p=lp(m);const n=[p.video,p.quiz,p.story].filter(Boolean).length;const nx=STEPNAME.find(([k])=>!p[k]);
  const line=n===3?'Expert! All 3 done':(n?'Next: ':'Start: ')+nx[1];
  return `<button class="lcard" data-go="k/path/${m}"><span class="lpic" style="background:${TINT[m]||'#F6EBD8'}">${ic('Material/'+m,'s64')}</span><span class="grow col gap8"><span class="display-md">${esc(m)}</span><span class="lbar">${[0,1,2].map(i=>`<i class="${i<n?'on':''}"></i>`).join('')}</span><span class="body-sm muted">${line}</span></span><span class="lplay ${S.offline?'off':''}">${ic(n===3?'UI/Star':'UI/Play')}</span></button>`}
-function soonCard(m){return `<div class="lcard soon"><span class="lpic" style="background:${TINT[m]||'#F6EBD8'}">${ic('Material/'+m,'s64')}</span><span class="grow col gap8"><span class="display-md">${esc(m)}</span><span class="body-sm muted">Videos are coming soon</span></span></div>`}
+function soonCard(m){return `<button class="lcard soon" data-go="k/path/${m}"><span class="lpic" style="background:${TINT[m]||'#F6EBD8'}">${ic('Material/'+m,'s64')}</span><span class="grow col gap8"><span class="display-md">${esc(m)}</span><span class="body-sm muted">Videos are coming soon</span></span></button>`}
 function lockedCard(){return `<button class="lcard locked" data-go="k/scan"><span class="lpic">${ic('UI/Lock','s32')}</span><span class="grow col gap8"><span class="display-md muted">Something new</span><span class="body-sm muted">Scan a new treasure to unlock it</span></span><span class="lplay">${ic('UI/Camera')}</span></button>`}
 SCREENS['k/learn']=()=>{
  if(S.firstDay)return `<div class="screen"><div class="top-space"></div>${kidHeader('Learn')}<div class="grow col center gap24 pad">${sproutBubble('Wave up','Scan a treasure to unlock its videos!',96)}${btn('Scan something',{icon:'UI/Camera',go:'k/scan'})}</div>${tabbar('Learn')}</div>`;
@@ -250,17 +275,18 @@ SCREENS['k/learn']=()=>{
  ${S.offline?`<div class="offline">${ic('UI/Wifi off')}No internet. Videos and stories need it. Your progress is saved.</div>`:nx?`<button class="keepgoing" data-go="k/${nx[0]}/${started}"><span class="thumb">${ic('Material/'+started,'s36')}</span><span class="grow col"><span class="label-md">Keep going · ${esc(started)}</span><span class="title-md">${nx[1]}</span></span><span class="lplay">${ic('UI/Play')}</span></button>`:''}
  ${withPath.map(learnCard).join('')}${soon.map(soonCard).join('')}${found.length<12?lockedCard():''}${S.offline?btn('Try again',{style:'secondary',act:'retry'}):''}</div></div>${tabbar('Learn')}</div>`};
 /* L2 · Learn path = LP2 trail (Dahaba, 15 Nov) */
-SCREENS['k/path']=m=>{m=m||'Tin can';const p=lp(m);const nextKey=['video','quiz','story'].find(k=>!p[k]);const all=!nextKey;
+SCREENS['k/path']=m=>{m=m||'Tin can';const soonPath=!LEARN.includes(m);const p=soonPath?{video:false,quiz:false,story:false}:lp(m);const nextKey=['video','quiz','story'].find(k=>!p[k]);const all=!nextKey;
  const STOPS=[['video','1 · Watch','What is it?','UI/Video'],['quiz','2 · Play','What does it become?','UI/Quiz'],['story','3 · Listen',`How it helps wildlife`,'UI/Headphones']];
  const rows=STOPS.map(([k,lab,title,icn],i)=>{const st=p[k]?'done':k===nextKey?'next':'todo';const right=i%2===1;
-  const stop=`<button class="tstop ${st}" data-act="openStop" data-arg="${k}/${m}" aria-label="${esc(lab+': '+title)}"><span class="tdisc">${ic(st==='done'?'UI/Check':icn)}</span><span class="tlabel"><span class="label-sm muted">${lab}</span><span class="title-sm">${esc(title)}</span></span></button>`;
-  const buddy=st==='next'?`<div class="tbuddy">${sprout('Talk A',48)}<div class="bubble">Tap to play!</div></div>`:'';
+  const stop=`<button class="tstop ${st}" data-act="${soonPath?'soonStop':'openStop'}" data-arg="${k}/${m}" aria-label="${esc(lab+': '+title)}"><span class="tdisc">${ic(st==='done'?'UI/Check':icn)}</span><span class="tlabel"><span class="label-sm muted">${lab}</span><span class="title-sm">${esc(title)}</span></span></button>`;
+  const buddy=st==='next'&&!soonPath?`<div class="tbuddy">${sprout('Talk A',48)}<div class="bubble">Tap to play!</div></div>`:'';
   return `<div class="trow ${right?'right':''}">${right?buddy+stop:stop+buddy}</div>`}).join('');
- return {html:`<div class="screen"><div class="top-space"></div>${topbar(m)}<div class="scroll"><div class="pad" style="padding-bottom:20px"><div class="trail"><svg class="tpath" aria-hidden="true"><path/></svg>${rows}
+ return {html:`<div class="screen"><div class="top-space"></div>${topbar(m)}<div class="scroll"><div class="pad" style="padding-bottom:20px">${soonPath?`<div class="soonnote" style="margin:0 0 14px">${sprout('Talk A',56)}<div class="col gap4"><div class="title-md">Coming soon!</div><div class="body-sm" style="font-weight:600">Videos about ${esc(m.toLowerCase()+(/x$/.test(m)?'es':'s'))} are on their way. Scan something else to learn now.</div></div></div>`:''}<div class="trail ${soonPath?'soon':''}"><svg class="tpath" aria-hidden="true"><path/></svg>${rows}
  <button class="texpert ${all?'won':''}" ${all?`data-go="k/expert/${m}"`:''}><span class="tdisc sm">${ic('UI/Star')}</span><span class="grow col"><span class="title-md">${esc(m)} expert</span><span class="body-sm muted">${all?'You did it! +10 sparks':'Finish all 3 to win +10 sparks'}</span></span>${all?'':ic('UI/Lock','s20')}</button></div></div></div>${tabbar('Learn')}</div>`,
  after(app){const tr=app.querySelector('.trail');if(!tr)return;const draw=()=>{const b=tr.getBoundingClientRect();const pts=[...tr.querySelectorAll('.tdisc:not(.sm)')].map(d=>{const r=d.getBoundingClientRect();return [r.left-b.left+r.width/2,r.top-b.top+r.height/2]});
   let dp=`M ${pts[0][0]} ${pts[0][1]}`;for(let i=1;i<pts.length;i++){const [x0,y0]=pts[i-1],[x1,y1]=pts[i];const my=(y0+y1)/2;dp+=` C ${x0} ${my} ${x1} ${my} ${x1} ${y1}`}
   const svg=tr.querySelector('.tpath');svg.setAttribute('width',b.width);svg.setAttribute('height',b.height);svg.querySelector('path').setAttribute('d',dp)};requestAnimationFrame(draw)}}};
+ACTIONS.soonStop=()=>toast('Coming soon! Scan something else to learn now.','UI/Clock');
 ACTIONS.openStop=a=>{if(S.offline&&a.split('/')[0]!=='quiz'){toast('Videos and stories need the internet','UI/Wifi off');return}go('k/'+a)};
 function media(kind,m){return `<div class="media"><div class="track"><i id="trk" style="width:${lp(m)[kind]?100:0}%"></i></div><button class="play" data-act="play" data-arg="${kind}/${m}" aria-label="Play">${ic('UI/Play')}</button></div>`}
 let playing=null;
@@ -289,23 +315,27 @@ ACTIONS.expertDone=r=>{S.sparks+=10;go(r)};
 
 /* P · Grown-ups gate, RC · Report a concern */
 let pinBuf='',pinErr=false;
-SCREENS['k/gate']=()=>{const locked=Date.now()<S.lockUntil;const msg=locked?`Too many tries. Wait ${Math.max(1,Math.ceil((S.lockUntil-Date.now())/60000))} minute.`:pinErr?"That's not right. Try again.":'Ask a grown-up to type the PIN.';
+let gateNext='p/home';
+SCREENS['k/gate']=arg=>{gateNext=arg==='camera'?'p/camera-off':'p/home';const locked=Date.now()<S.lockUntil;const msg=locked?`Too many tries. Wait ${Math.max(1,Math.ceil((S.lockUntil-Date.now())/60000))} minute.`:pinErr?"That's not right. Try again.":'Ask a grown-up to type the PIN.';
  return {html:`<div class="screen"><div class="top-space"></div><div style="padding:0 16px">${round('UI/Arrow left','data-act="gateBack"',{label:'Back'})}</div><div class="scroll col gap16 center" style="padding-top:8px"><div class="lockdisc">${ic('UI/Lock','s32')}</div><div class="display-lg">Grown-ups only</div><div class="body-md muted" ${pinErr||locked?'style="color:var(--danger)"':''}>${msg}</div>
  <div class="pin-dots ${pinErr?'shake':''}">${[0,1,2,3].map(i=>`<i class="${pinErr?'err':i<pinBuf.length?'on':''}"></i>`).join('')}</div>
  <div class="pinpad" style="margin-top:8px">${[1,2,3,4,5,6,7,8,9].map(n=>`<button class="key" data-act="pin" data-arg="${n}" ${locked?'disabled style="opacity:.5"':''}>${n}</button>`).join('')}<span class="key blank"></span><button class="key" data-act="pin" data-arg="0">0</button><button class="key" data-act="pin" data-arg="del" aria-label="Delete">⌫</button></div>
- ${S.tellUs?`<button class="tellus" data-go="k/tell">${ic('UI/Hand','s20')}Something worrying? Tell us</button>`:''}</div></div>`,
+ </div></div>`,
  after(){if(locked)later(S.lockUntil-Date.now()+50,()=>{S.pinTries=0;pinErr=false;render()})}}};
 ACTIONS.gateBack=()=>{pinBuf='';pinErr=false;back('k/garden')};
 ACTIONS.pin=k=>{if(Date.now()<S.lockUntil)return;pinErr=false;if(k==='del')pinBuf=pinBuf.slice(0,-1);else if(pinBuf.length<4)pinBuf+=k;render();
- if(pinBuf.length===4)setTimeout(()=>{if(pinBuf===S.pin){pinBuf='';S.pinTries=0;go('p/home')}else{pinBuf='';pinErr=true;S.pinTries++;if(S.pinTries>=3){S.lockUntil=Date.now()+60000;pinErr=false}render()}},250)};
+ if(pinBuf.length===4)setTimeout(()=>{if(pinBuf===S.pin){pinBuf='';S.pinTries=0;go(gateNext)}else{pinBuf='';pinErr=true;S.pinTries++;if(S.pinTries>=3){S.lockUntil=Date.now()+60000;pinErr=false}render()}},250)};
 let worry=null;
 SCREENS['k/tell']=()=>`<div class="screen"><div class="top-space"></div><div class="cam-top" style="padding:0 16px">${round('UI/Close','data-act="back"',{label:'Close'})}${round('UI/Speaker','data-act="speak" data-arg="You\'re not in trouble. What worried you? Something I saw. Something I heard. I feel sad or scared. Something else."')}</div>
  <div class="scroll"><div class="col gap16 pad" style="padding-top:12px">${sproutBubble('Talk A',"You're not in trouble.",64)}<div class="display-lg">What worried you?</div>
  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">${[['Something I saw','UI/Video'],['Something I heard','UI/Speaker'],['I feel sad or scared','UI/Hand'],['Something else','UI/Quiz']].map(([l,i])=>`<button class="action-tile ${worry===l?'selected':''}" data-act="worry" data-arg="${esc(l)}"><span class="disc">${ic(i)}</span>${l}</button>`).join('')}</div></div></div>
  <div class="pad" style="padding-bottom:28px">${btn('Send',{act:'sendWorry',disabled:!worry})}</div></div>`;
 ACTIONS.worry=v=>{worry=v;render()};
-ACTIONS.sendWorry=()=>{S.reports.unshift({kid:kidName(),what:worry,where:'Grown-ups gate',when:'Today, just now',handled:false});worry=null;go('k/thanks',{replace:true})};
+ACTIONS.sendWorry=()=>{S.reports.unshift({kid:kidName(),what:worry,where:'Tell Sprout',when:'Today, just now',handled:false});worry=null;go('k/thanks',{replace:true})};
 SCREENS['k/thanks']=()=>`<div class="screen"><div class="top-space"></div><div class="grow col center gap16 pad">${sprout('Happy',120)}<div class="display-xl" style="font-size:34px">Thank you for telling us</div><div class="body-lg">${parent()} will know right away. You can also talk to her now.</div>${btn('Back to my Garden',{go:'k/garden'})}</div></div>`;
 
+/* BT2 · Time to rest (screen time or bedtime reached) */
+SCREENS['k/bedtime']=()=>({after(){speak(`Time to rest, ${kidName()}! Your garden will be here tomorrow.`)},html:`<div class="screen sky"><div class="garden">${gardenLayers(false)}</div><div class="top-space" style="position:relative;z-index:2"></div><div style="position:relative;z-index:2">${kidHeader()}</div><div class="grow"></div>
+ <div style="position:relative;z-index:3;padding:0 16px 28px"><div class="card col center gap12" style="padding:22px 20px;border-radius:28px">${sprout('Wave up',96)}<div class="display-lg">Time to rest, ${esc(kidName())}!</div><div class="body-md muted" style="font-weight:600">Your garden will be here tomorrow. Nothing is lost.</div>${btn('Bye, Sprout!',{go:'k/w1'})}</div></div></div>`});
 window.KID={BUILDS,learnRow};
 })();

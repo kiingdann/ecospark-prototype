@@ -29,7 +29,7 @@ function scene(o={}){const g=G(),ph=PHASES[phase()];const empty=!!o.empty;const 
   <button class="ghit" style="left:160px;top:318px;width:44px;height:44px" data-act="gButterfly" aria-label="Butterfly"></button>
   <button class="ghit" style="left:266px;top:426px;width:40px;height:36px" data-act="gBee" aria-label="Bee"></button>`}
  h+=`<div class="layer gnext">${g.next||''}</div>${ph.warm?`<div class="gwarm" style="opacity:${ph.warm}"></div>`:''}`;
- if(o.bubble!==false){const pct=empty?0:Math.min(100,S.garden);h+=`<div class="next-bubble" data-act="nextFlower"><div class="row">${ic('UI/Sparks','s16')}${pct} / 100</div><div class="bar"><i style="width:${pct}%"></i></div></div>`}
+ if(o.bubble!==false){const pct=empty?0:Math.min(100,S.garden);h+=`<div class="next-bubble" data-act="nextFlower" role="button" aria-label="Next flower: ${100-pct} more sparks"><div class="row">${ic('UI/Garden','s16')}Next flower</div><div class="bar"><i style="width:${pct}%"></i></div></div>`}
  return h+'</div>'}
 
 /* GA2 · tap reactions */

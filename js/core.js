@@ -19,13 +19,16 @@ function defaults(){return{
   done:[{kid:'Leo',build:'Desk Post',when:'10 Nov · Approved'}],
   reports:[{kid:'Leo',what:'Something I saw',where:'Learn · video "What is a tin can?"',when:'Today, 16:20',handled:false}],
   children:[{name:'Leo',age:7,colour:'Yellow'},{name:'Maya',age:10,colour:'Green'}],
-  screenTime:{Leo:'30 min',Maya:'45 min'},curfew:true,notifs:[true,true,true,false],
+  screenTime:{Leo:'30 min',Maya:'45 min'},curfew:true,notifs:[true,true,true,true,false],
   photos:['Bird feeder','Desk Post','Crayon Crew','Pencil pot','Plant Pal','Crayon Crew'],
   parentName:'Hannah',email:'hannah@email.co.uk',
   draftChild:null,newPin:'',gardenTime:'auto',
+  guCode:'2580',stepUnlocked:false,guWaiting:null,ideaWaiting:null,scanBack:false,bedtime:'19:30',
 };}
 let S;
 try{S=Object.assign(defaults(),JSON.parse(localStorage.getItem(LS)||'{}'))}catch(e){S=defaults()}
+/* 19 Nov migration: notifications gained "When a child tells us about a worry" */
+if(Array.isArray(S.notifs)&&S.notifs.length===4)S.notifs.unshift(true);
 function save(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
 
 /* helpers */
@@ -96,18 +99,18 @@ window.addEventListener('resize',fitGarden);
 
 /* Settings panel (prototype only) */
 const JUMPS=[
- ['Kid app',[['k/w1','W1 · Who\'s playing'],['k/garden','G1 · Garden home'],['k/garden/plant','G6 · Plant sheet'],['k/garden/visitor','G7 · Visitor sheet'],['k/garden/recycled','G8 · Built or recycled'],['k/garden/theme','WT2 · Weekly theme sheet'],
-  ['k/scan','S1 · Camera'],['k/state/person','S8 · Not allowed'],['k/state/unsure','S9 · Not sure'],['k/state/battery','S10 · Careful'],['k/state/nomore','S11 · No scans left'],['k/state/camera','S12 · Camera off'],['k/state/offline','S13 · No internet'],['k/state/other','S14 · Pick something else'],
-  ['k/result/Tin can','S3 · New treasure'],['k/result/Plastic bottle','S4 · Found again'],['k/info/ready','S5 · Get it ready'],['k/info/recycle','S6 · Recycle it'],['k/info/fact','S7 · Fun fact'],
-  ['k/treasury','T1 · Treasury (tap a treasure: TS1 to TS3)'],['k/builds','MB2 · My builds'],['k/build/Crayon Crew','B1 · Build detail'],['k/build/Pencil pot','B7 · Build not ready'],['k/step/1','B4 · Step 1'],['k/step/2','B5 · Step 2'],['k/step/3','B3 · Step 3'],['k/step/4','B6 · Last step'],['k/where','BE2 · Where will it live'],['k/made','BE1 · You made it'],
-  ['k/photo','R1 · Photo of the build'],['k/sent','R3 · Sent to Hannah'],['k/approved','R5 · Approved'],['k/retry','R6 · Not this time'],
-  ['k/learn','L1 · Learn home'],['k/path/Tin can','L2 · 3-step path'],['k/video/Tin can','L3 · Video'],['k/quiz/Tin can','L4 · Quiz'],['k/story/Tin can','L5 · Story'],['k/expert/Tin can','L6 · Expert'],
+ ['Kid app',[['k/w1','W1 · Who\'s playing'],['k/w1/switch','SW2 · Who\'s playing (switch)'],['k/garden','G1 · Garden home'],['k/garden/plant','G6 · Plant sheet'],['k/garden/visitor','G7 · Visitor sheet'],['k/garden/recycled','G8 · Built or recycled'],['k/garden/theme','WT2 · Weekly theme sheet'],['k/bedtime','BT2 · Time to rest'],
+  ['k/scan','S1 · Camera'],['k/state/person','S8 · Not allowed'],['k/state/unsure','S9 · Not sure'],['k/state/battery','S10 · Careful'],['k/state/nomore','S11 · No scans left'],['k/state/camera','CM1 · Camera off'],['k/state/offline','S13 · No internet'],['k/state/other','S14 · Pick something else'],
+  ['k/result/Tin can','S3 · New treasure (That\'s not right: NR1)'],['k/result/Plastic bottle','S4 · Found again'],['k/info/ready','S5 · Get it ready'],['k/info/recycle','S6 · Recycle it'],['k/info/fact','S7 · Fun fact'],
+  ['k/treasury','TB2 · Shed (tap a treasure: TS1 to TS3)'],['k/builds','MB2 · Builds tab'],['k/build/Crayon Crew','GB1 · Build detail'],['k/build/Pencil pot','B7 · Build not ready'],['k/step/1','GB2 · Step 1 needs a grown-up'],['k/gucode','GB3b · Grown-up code'],['k/step/2','B5 · Step 2'],['k/step/3','B3 · Step 3'],['k/step/4','B6 · Last step'],['k/where','BE2 · Where will it live'],['k/made','YM1 · You made it! +10'],
+  ['k/photo','R1 · Photo of the build'],['k/sent','R3 · Sent to Hannah'],['k/approved','YM2 · Hannah loved it, +10 more'],['k/retry','R6 · Not this time'],
+  ['k/learn','L1 · Learn home'],['k/path/Tin can','L2 · 3-step path'],['k/path/Plastic bottle','LN1 · Plastic bottle path'],['k/path/Egg box','LN2 · Egg box: coming soon'],['k/video/Tin can','L3 · Video'],['k/quiz/Tin can','L4 · Quiz'],['k/story/Tin can','L5 · Story'],['k/expert/Tin can','L6 · Expert'],
   ['k/gate','P1 · Grown-ups only'],['k/tell','RC2 · What worried you'],['k/thanks','RC3 · Thank you']]],
- ['Parent zone',[['p/splash','A1 · Splash'],['p/welcome','A2 · Welcome'],['p/signup','U1 · Create account'],['p/code','U2 · Email code'],['p/consent','C1 · Consent'],['p/child-add','C2 · Add a child'],['p/children','C3 · Your children'],['p/camera','C4 · Camera'],['p/pin','C5 · Create PIN'],['p/how','C7 · How it works'],['p/handover','C8 · Hand over'],
+ ['Parent zone',[['p/splash','A1 · Splash'],['p/welcome','A2 · Welcome'],['p/signup','U1 · Create account'],['p/code','U2 · Email code'],['p/consent','CN1 · Consent'],['p/terms','CN2 · Terms'],['p/privacy-doc','CN3 · Privacy notice'],['p/child-add','C2 · Add a child'],['p/children','C3 · Your children'],['p/edit/Leo','EC1 · Edit Leo'],['p/camera','C4 · Camera'],['p/pin','C5 · Create PIN'],['p/gucode','CS1 · Grown-up code'],['p/how','C7 · How it works'],['p/handover','C8 · Hand over'],
   ['p/signin','I1 · Sign in'],['p/locked','I3 · Too many tries'],['p/forgot','I4 · Forgot password'],['p/link-sent','I5 · Link sent'],
-  ['p/push','PZ2 · Push alert'],['p/home','PZ1 · Parent home'],['p/approvals','AP1 · Approvals'],['p/review/0','AP2 · Review build'],['p/nottime/0','AP3 · Not this time'],
-  ['p/family','FA1 · Family'],['p/child/Leo','FA2 · Leo'],['p/photos','FA3 · Photos'],['p/time','FA4 · Screen time'],['p/report','FA5 · Report'],
-  ['p/account','AC1 · Account'],['p/password','AC2 · Change password'],['p/notifs','AC3 · Notifications'],['p/delete','AC4 · Delete account']]]];
+  ['p/push','PZ2 · Push alert'],['p/home','PZ1 · Parent home (WP1 worry first)'],['p/approvals','AP1 · Approvals'],['p/review/0','AP2 · Review build'],['p/nottime/0','AP3 · Not this time'],
+  ['p/family','FA1 · Family'],['p/child/Leo','FA2 · Leo'],['p/photos','FA3 · Photos'],['p/time','FA4 · Screen time and bedtime'],['p/report','FA5 · Report from Leo'],['p/report-sent','WP2 · Sent to the safety team'],
+  ['p/account','AC1 · Account'],['p/password','AC2 · Change password'],['p/notifs','AC3 · Notifications'],['p/gucode/change','CS1 · Change the grown-up code'],['p/camera-off','CM2 · The camera is off'],['p/delete','AC4 · Delete account']]]];
 function opt(key,val,label){return `<button class="opt ${S[key]===val?'on':''}" data-set="${key}" data-val="${esc(JSON.stringify(val))}">${label}</button>`}
 function panelHTML(){return `<div class="row" style="justify-content:space-between"><h3>Prototype settings</h3><button class="opt" data-closepanel>Close</button></div><p class="note">Controls for testing. They are not part of the app.</p>
  <h4>Start as</h4><div class="opts"><button class="opt" data-start="kid">Kid app (Leo)</button><button class="opt" data-start="parent">Parent zone (Hannah)</button><button class="opt" data-start="launch">First launch</button></div>
@@ -121,9 +124,10 @@ function panelHTML(){return `<div class="row" style="justify-content:space-betwe
  <h4>Garden time of day (Proposal)</h4><div class="opts">${opt('gardenTime','auto','Device clock')}${opt('gardenTime','morning','Morning')}${opt('gardenTime','day','Day')}${opt('gardenTime','dusk','Evening')}</div>
  <h4>Garden continue card</h4><div class="opts">${[['news','Parent news'],['progress','Build in progress'],['almost','Almost ready'],['scan','Nothing waiting']].map(([v,l])=>opt('continueKind',v,l)).join('')}</div>
  <h4>To confirm with the client</h4><div class="opts">${opt('c5','A','C5-A counter always')}${opt('c5','B','C5-B counter at limit')}</div><div class="opts" style="margin-top:6px">${opt('a2','A','A2-A treasures')}${opt('a2','B','A2-B items rescued')}</div>
- <h4>Proposals</h4><div class="opts">${opt('weekly',true,'Weekly theme on')}${opt('weekly',false,'off')}</div><div class="opts" style="margin-top:6px">${opt('a1',true,'Inside or outside on')}${opt('a1',false,'off')}</div><div class="opts" style="margin-top:6px">${opt('ages','9-12','Ages 9 to 12 text')}${opt('ages','5-9','Ages 5 to 9')}</div><div class="opts" style="margin-top:6px">${opt('tellUs',true,'Report link on')}${opt('tellUs',false,'off')}</div>
- <h4>Parent zone</h4><div class="opts"><button class="opt" data-jumpto="p/push">Send the push alert</button></div>
- <p class="note" style="margin-top:8px">Grown-up PIN: <b>${esc(S.pin)}</b>. Email code: any 6 digits (000000 shows the error).</p>
+ <h4>Proposals</h4><div class="opts">${opt('weekly',true,'Weekly theme on')}${opt('weekly',false,'off')}</div><div class="opts" style="margin-top:6px">${opt('a1',true,'Inside or outside on')}${opt('a1',false,'off')}</div><div class="opts" style="margin-top:6px">${opt('ages','9-12','Ages 9 to 12 text')}${opt('ages','5-9','Ages 5 to 9')}</div>
+ <h4>Screen time</h4><div class="opts"><button class="opt" data-jumpto="k/bedtime">Time is up (Sprout says goodbye)</button></div>
+ <h4>Parent zone</h4><div class="opts"><button class="opt" data-jumpto="p/push">Send the push alert</button><button class="opt" data-addworry>A child tells us about a worry</button></div>
+ <p class="note" style="margin-top:8px">Grown-up PIN: <b>${esc(S.pin)}</b>. Grown-up code (build steps): <b>${esc(S.guCode)}</b>. Email code: any 6 digits (000000 shows the error).</p>
  <button class="reset" data-reset>Reset the prototype</button>`}
 function syncPanel(){const p=document.querySelector('.proto-panel');if(p&&p.classList.contains('open'))p.innerHTML=panelHTML()}
 function initPanel(){const fab=document.createElement('button');fab.className='proto-fab';fab.setAttribute('aria-label','Prototype settings');fab.innerHTML=ic('UI/Settings');
@@ -133,6 +137,7 @@ function initPanel(){const fab=document.createElement('button');fab.className='p
     if(t.dataset.set){S[t.dataset.set]=JSON.parse(t.dataset.val);save();render()}
     else if(t.dataset.start){const s=t.dataset.start;stack=[];go(s==='kid'?'k/w1':s==='parent'?'p/home':'p/splash')}
     else if(t.dataset.jumpto){go(t.dataset.jumpto)}
+    else if(t.hasAttribute('data-addworry')){S.reports.unshift({kid:S.kid||'Leo',what:'Something I saw',where:'Learn · video "What is a tin can?"',when:'Today, 16:20',handled:false});save();toast('Worry added. Open the Parent zone home.','UI/Flag');go('p/home')}
     else if(t.hasAttribute('data-closepanel')){p.classList.remove('open')}
     else if(t.hasAttribute('data-reset')){const keep={};Object.assign(S,defaults());save();stack=[];toast('Prototype reset','UI/Refresh');go('k/w1')}});
   p.addEventListener('change',e=>{if(e.target.dataset.jump!==undefined&&e.target.value){const r=e.target.value;stack=[];go(r)}})}
