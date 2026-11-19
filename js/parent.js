@@ -76,7 +76,7 @@ ACTIONS.ppin=k=>{pinMsg='';if(k==='del')pinBuf2=pinBuf2.slice(0,-1);else if(pinB
   else if(pinBuf2===newPin){S.pin=newPin;pinBuf2='';if(pinMode==='change'){toast('PIN changed','UI/Lock');go('p/account')}else go('p/how')}
   else{pinBuf2='';pinMsg="The PINs don't match. Try again.";render()}},200)};
 SCREENS['p/how']=()=>{const k=(S.children[0]||{name:'Leo'}).name;return page(`${topbar('How it works')}<div class="scroll"><div class="col gap8 pad"><div class="display-lg">Your part is small</div><div class="body-md muted">Here is what happens, and when we need you.</div>
- ${[[`${k} scans a treasure at home.`],['He builds something new. Some steps need you.',1],['He photographs it. You approve it in one tap.',1],['Sparks grow his garden. A visitor may come!']].map(([t,g],i)=>`<div class="steprow ${g?'gu':''}"><span class="num">${i+1}</span><span class="txt" style="font-size:16px">${t}</span>${g?`<span class="hand">${ic('UI/Hand','s20')}</span>`:''}</div>`).join('')}
+ ${[[`${k} scans a treasure at home.`],[`${k} builds something new. Some steps need you.`,1],[`${k} photographs it. You approve it in one tap.`,1],[`Sparks grow ${k}'s garden. A visitor may come!`]].map(([t,g],i)=>`<div class="steprow ${g?'gu':''}"><span class="num">${i+1}</span><span class="txt" style="font-size:16px">${t}</span>${g?`<span class="hand">${ic('UI/Hand','s20')}</span>`:''}</div>`).join('')}
  <div class="offline" style="margin-top:8px">${ic('UI/Bell','s20')}We'll send you a notification when something needs you.</div></div></div>`,btn('Got it',{go:'p/handover'}))};
 SCREENS['p/handover']=()=>{const names=S.children.map(c=>c.name).join(' or ');return {after(){EC.burst('small')},html:`<div class="screen sky"><div class="top-space"></div><div class="grow col center gap16 pad">${sprout('Happy',140)}<div class="display-xl">All set!</div><div class="body-lg">Give the phone to ${esc(names)}. Kid mode starts now.</div>${btn('Start kid mode',{act:'finishSetup',arg:'k/w1'})}<button class="link" data-act="finishSetup" data-arg="p/home">Go to the Parent zone</button></div></div>`}};
 ACTIONS.finishSetup=r=>{S._setup=false;S._addedOne=false;consent=[false,false,false];go(r)};
@@ -96,9 +96,9 @@ ACTIONS.resend=()=>toast('Link sent again','UI/Mail');
 
 /* PZ · Home and alerts */
 SCREENS['p/push']=()=>({light:true,html:`<div class="screen notif-screen"><div class="top-space"></div><div class="col center" style="color:#fff;padding-top:30px"><div style="font:700 72px/80px var(--f-display)">16:20</div><div class="body-lg">Saturday 14 November</div></div>
- <div class="pad" style="margin-top:40px"><button class="notif" data-go="p/home"><span class="appicon">${ic('UI/Sparks')}</span><span class="grow col gap4"><span class="row" style="justify-content:space-between"><span class="label-md">EcoSpark</span><span class="label-sm muted">now</span></span><span class="body-md-bold">${esc((S.approvals[0]||{kid:'Leo'}).kid)} made a ${esc((S.approvals[0]||{build:'Bird feeder'}).build)}!</span><span class="body-sm" style="font-weight:600">Tap to see his photo and say well done.</span></span></button></div>
+ <div class="pad" style="margin-top:40px"><button class="notif" data-go="p/home"><span class="appicon">${ic('UI/Sparks')}</span><span class="grow col gap4"><span class="row" style="justify-content:space-between"><span class="label-md">EcoSpark</span><span class="label-sm muted">now</span></span><span class="body-md-bold">${esc((S.approvals[0]||{kid:'Leo'}).kid)} made a ${esc((S.approvals[0]||{build:'Bird feeder'}).build)}!</span><span class="body-sm" style="font-weight:600">Tap to see ${esc((S.approvals[0]||{kid:'Leo'}).kid)}'s photo and say well done.</span></span></button></div>
  <div class="grow"></div><div class="body-sm center" style="color:#ffffffcc;padding:0 30px 40px">No answer after 24 h: one reminder, then an email.</div></div>`});
-SCREENS['p/home']=()=>{const w=S.approvals;const stats={Leo:'5 treasures · 2 builds · '+S.sparks+' sparks',Maya:'3 treasures · 1 build · 80 sparks'};
+SCREENS['p/home']=()=>{const w=S.approvals;const stats={Leo:Object.keys(S.shelf).length+' treasures · 2 builds · '+S.sparks+' sparks',Maya:'3 treasures · 1 build · 80 sparks'};
  return `<div class="screen"><div class="top-space"></div>${phead('Hello, '+P())}<div class="scroll"><div class="col gap16 pad" style="padding-bottom:20px">
  ${w.length?`<div class="waitbox"><div class="row gap8 title-md" style="color:var(--orange-ink)">${ic('UI/Bell','s20')}${w.length} build${w.length>1?'s':''} waiting for you</div>${waitCard(w[0],0,w[0].ago||w[0].when)}${btn('Review now',{size:'md',go:'p/review/0'})}</div>`
   :`<div class="waitbox" style="background:var(--green-tint)"><div class="row gap8 title-md" style="color:var(--green)">${ic('UI/Check','s20')}All caught up</div><div class="body-sm" style="font-weight:600">We'll tell you when a build is waiting.</div></div>`}
@@ -109,8 +109,8 @@ SCREENS['p/approvals']=()=>`<div class="screen"><div class="top-space"></div>${p
  ${S.approvals.length?S.approvals.map((a,i)=>waitCard(a,i,a.when)).join(''):`<div class="body-md muted">Nothing waiting. Nice work!</div>`}<div class="section-title" style="margin-top:8px">Done</div>${S.done.map(d=>waitCard({...d,doneItem:true},0,d.when)).join('')}</div></div>${ptab('Approvals')}</div>`;
 let reaction='Proud of you!',outside=null;
 SCREENS['p/review']=i=>{const a=S.approvals[+i||0];if(!a)return SCREENS['p/approvals']();if(outside===null)outside=!!a.outside;
- return page(`${topbar(`${a.kid}'s ${a.build}`)}<div class="scroll"><div class="col gap12 pad"><div class="hero" style="height:220px">${ic('Build/'+a.build,'s120')}</div><div class="body-md">${esc(a.kid)} built it today. Is it really done?</div>
- ${check(`It went outside (a bird may visit ${a.kid==='Maya'?'her':'his'} garden)`,outside,'toggleOutside','')}<div class="title-md" style="margin-top:6px">Send a reaction</div>
+ return page(`${topbar(`${a.kid}'s ${a.build}`)}<div class="scroll"><div class="col gap12 pad"><div class="hero" style="height:220px">${ic('Build/'+a.build,'s120')}</div><div class="body-md">${esc(a.kid)} built it ${/^Yesterday/.test(a.when||'')?'yesterday':'today'}. Take a look!</div>
+ ${check(`It went outside (a bird may visit ${esc(a.kid)}'s garden)`,outside,'toggleOutside','')}<div class="title-md" style="margin-top:6px">Send a reaction</div>
  <div class="row gap8" style="flex-wrap:wrap">${['Proud of you!','Amazing!','So creative!','Well done!'].map(r=>`<button class="chip ${reaction===r?'sel':''}" data-act="react" data-arg="${r}">${r}</button>`).join('')}</div></div></div>`,
  `${btn('Approve and send',{act:'approve',arg:i||0})}${btn('Not this time',{style:'secondary',go:'p/nottime/'+(i||0)})}`)};
 ACTIONS.toggleOutside=()=>{outside=!outside;render()};
@@ -124,11 +124,14 @@ SCREENS['p/sent']=()=>{const a=lastSent||{kid:'Leo',reaction:'Proud of you!'};co
  `${n?btn(`Next: ${n.kid}'s ${n.build}`,{go:'p/review/0'}):btn('Back to home',{go:'p/home'})}<button class="link" data-go="p/approvals">Back to approvals</button>`)};
 let ideas=[true,false,false];
 SCREENS['p/nottime']=i=>{const a=S.approvals[+i||0]||{kid:'Leo',build:'Bird feeder'};
- return page(`${topbar('Not this time')}<div class="scroll"><div class="col gap16 pad"><div class="display-lg">Help ${esc(a.kid)} try again</div><div class="body-md muted">Pick a kind idea. ${esc(a.kid)} will see it with ${a.kid==='Maya'?'her':'his'} photo.</div>
- ${['Add a stick for the birds to stand on','Ask me to help with the hard step','The photo is not clear, take another'].map((t,j)=>check(t,ideas[j],'idea',j)).join('')}${field('Or write your own (optional)','',{id:'f-own'})}</div></div>`,btn(`Send to ${a.kid}`,{act:'sendIdea',arg:i||0}))};
-ACTIONS.idea=j=>{const own=val('f-own');ideas=ideas.map((_,k)=>k===+j?!ideas[k]:false);render();if(own)document.getElementById('f-own').value=own};
-ACTIONS.sendIdea=i=>{const a=S.approvals.splice(+i,1)[0];const own=val('f-own');const opts=['Can you add a stick for the birds to stand on?','Can I help you with the hard step?','Can you take another, clearer photo?'];
- const note=own||opts[ideas.findIndex(Boolean)]||opts[0];if(a&&(a.kid===(S.kid||'Leo')||a.kid==='Leo')){S.kidRetry={build:a.build,note};if(S.sentBuild===a.build)S.sentBuild=null;S.builds[a.build]='ready'}
+ return page(`${topbar('Not this time')}<div class="scroll"><div class="col gap16 pad"><div class="display-lg">Help ${esc(a.kid)} try again</div><div class="body-md muted">Pick one or more ideas. ${esc(a.kid)} will see them with the photo.</div>
+ ${ideasFor(a.build).map(([t],j)=>check(t,ideas[j],'idea',j)).join('')}${field('Or write your own (optional)','',{id:'f-own'})}</div></div>`,btn(`Send to ${a.kid}`,{act:'sendIdea',arg:i||0}))};
+/* Ideas fit each build (feedback item 17). Several can be picked. */
+const IDEAS={'Bird feeder':[['Add a stick for the birds to stand on','Can you add a stick for the birds to stand on?']],'Pencil pot':[['Add a label with your name','Can you add a label with your name?']],'Plant Pal':[['Add a little more soil','Can you add a little more soil?']],'Desk Post':[['Make the slot a bit wider','Can you make the slot a bit wider?']],'Crayon Crew':[['Check your pot stands up','Can your pot stand up on its own?']]};
+function ideasFor(b){return (IDEAS[b]||[['Try the last step again','Can you try the last step again?']]).concat([['Ask me to help with the hard step','Can I help you with the hard step?'],['The photo is not clear, take another','Can you take another, clearer photo?']])}
+ACTIONS.idea=j=>{const own=val('f-own');ideas=ideas.map((v,k)=>k===+j?!v:v);render();if(own)document.getElementById('f-own').value=own};
+ACTIONS.sendIdea=i=>{const a=S.approvals.splice(+i,1)[0];const own=val('f-own');const opts=ideasFor(a&&a.build).map(x=>x[1]);
+ const picked=opts.filter((_,k)=>ideas[k]);const note=own||picked.join(' ')||opts[0];if(a&&(a.kid===(S.kid||'Leo')||a.kid==='Leo')){S.kidRetry={build:a.build,note};if(S.sentBuild===a.build)S.sentBuild=null;S.builds[a.build]='ready'}
  ideas=[true,false,false];toast(`Sent to ${a?a.kid:'Leo'}`,'UI/Check');go('p/approvals',{replace:true})};
 
 /* FA · Family */

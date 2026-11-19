@@ -34,7 +34,7 @@ function defaults(){return{
    {t:"AI cost reached 70% of last week's budget",d:'Resolved by Grace Bennett. Week ended at £23.10.',at:'13 November',icon:'pound-sterling'},
    {t:'Learn videos loading slowly',d:'Resolved by the hosting provider after 25 minutes.',at:'12 November',icon:'video'},
    {t:'The review queue was growing',d:'Resolved by Grace Bennett after 1 h.',at:'10 November',icon:'clock'}],
-  scanLimit:5,
+  scanLimit:3,
   alertSet:{queue:'2 hours',budget:'25',warn:'70% and 90%',errors:'More than 5 in 10 minutes',who:{grace:true,priya:true,tom:false}},
   usagePeriod:'Last 7 days',usageEmpty:false,
   team:[{k:'grace',st:'Active',last:'Now',two:'On'},{k:'tom',st:'Active',last:'Today, 09:12',two:'On',joined:'2 November'},{k:'priya',st:'Active',last:'Today, 10:55',two:'On',joined:'2 November'}],
@@ -45,6 +45,7 @@ function defaults(){return{
 };}
 let S;
 try{S=Object.assign(defaults(),JSON.parse(localStorage.getItem(LS)||'{}'))}catch(e){S=defaults()}
+if(S.scanLimit===5)S.scanLimit=3; /* 19 Nov: the kid app allows 3 scans a day */
 function save(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
 const me=()=>PEOPLE[S.me]||PEOPLE.grace;
 

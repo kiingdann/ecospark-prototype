@@ -19,7 +19,7 @@ const STEPS=[
  {pic:'Material/Newspaper',opt:true,title:'Make a picture label',text:'Want a label? Draw a picture on your paper strip. No label? Skip straight to step four.'},
  {pic:'Material/Yoghurt pot',opt:true,title:'Wrap the label',text:'If you made a label, wrap it around the pot. Glue the paper ends together, keeping glue off the pot.'},
  {pic:'Build/Crayon Crew',title:'Move your crayons in',text:'Put a few short crayons inside. Pick one out: can your pot stay standing?',text912:'Put a few short crayons inside, tips up. Pick one out and put it back: if the pot tips, use fewer crayons or a wider pot. A wide base keeps things steady.'}];
-const SCAN={ 'Tin can':{fact:'A tin can can be recycled again and again, forever!',build:'Pencil pot',facts:['4 steps','10 min'],
+const SCAN={ 'Tin can':{fact:'Most tin cans are steel with a thin coat of tin. At the recycling centre, a giant magnet pulls them out of the pile! Steel can be recycled again and again without wearing out.',build:'Pencil pot',facts:['4 steps','10 min'],
    ready:[['Rinse it with water.'],['Check the edges. Sharp lids are for grown-ups.',1],['Put it in your rescue box.']],
    recycle:[['Rinse it.'],['Squash it if you can.'],['Ask a grown-up which bin it goes in. Every council is different.',1]]},
  'Plastic bottle':{fact:'A plastic bottle can come back as a new bottle, or even a fleece jumper!',build:'Bird feeder',facts:['5 steps','20 min'],
@@ -251,7 +251,7 @@ SCREENS['k/learn']=()=>{
  ${withPath.map(learnCard).join('')}${soon.map(soonCard).join('')}${found.length<12?lockedCard():''}${S.offline?btn('Try again',{style:'secondary',act:'retry'}):''}</div></div>${tabbar('Learn')}</div>`};
 /* L2 · Learn path = LP2 trail (Dahaba, 15 Nov) */
 SCREENS['k/path']=m=>{m=m||'Tin can';const p=lp(m);const nextKey=['video','quiz','story'].find(k=>!p[k]);const all=!nextKey;
- const STOPS=[['video','1 · Watch','What is it? Where does it go?','UI/Video'],['quiz','2 · Play','What does it become?','UI/Quiz'],['story','3 · Listen',`How it helps wildlife`,'UI/Headphones']];
+ const STOPS=[['video','1 · Watch','What is it?','UI/Video'],['quiz','2 · Play','What does it become?','UI/Quiz'],['story','3 · Listen',`How it helps wildlife`,'UI/Headphones']];
  const rows=STOPS.map(([k,lab,title,icn],i)=>{const st=p[k]?'done':k===nextKey?'next':'todo';const right=i%2===1;
   const stop=`<button class="tstop ${st}" data-act="openStop" data-arg="${k}/${m}" aria-label="${esc(lab+': '+title)}"><span class="tdisc">${ic(st==='done'?'UI/Check':icn)}</span><span class="tlabel"><span class="label-sm muted">${lab}</span><span class="title-sm">${esc(title)}</span></span></button>`;
   const buddy=st==='next'?`<div class="tbuddy">${sprout('Talk A',48)}<div class="bubble">Tap to play!</div></div>`:'';
@@ -283,7 +283,7 @@ ACTIONS.answer=i=>{if(quiz.pick!==null&&QUIZ[quiz.q][1][quiz.pick][2])return;qui
 ACTIONS.nextQ=m=>{if(quiz.q<QUIZ.length-1){quiz={q:quiz.q+1,pick:null};render()}else{quiz={q:0,pick:null};finish('quiz',m)}};
 ACTIONS.quitQuiz=()=>{quiz={q:0,pick:null};back('k/learn')};
 SCREENS['k/expert']=m=>{m=m||'Tin can';return {after(){EC.burst()},html:`<div class="screen"><div class="top-space"></div><div class="scroll col gap16 pad center" style="padding-top:30px">${confetti()}${sprout('Happy',112)}<div class="display-xl" style="font-size:34px">${esc(m)} expert!</div><div class="row gap12">${ic('UI/Star','s44')}${ic('UI/Star','s44')}${ic('UI/Star','s44')}</div>
- <div class="body-md" style="font-weight:600">You finished all 3 steps. Harder ${esc(m.toLowerCase())} builds are now open!</div><span class="sparks sm">${ic('UI/Sparks')}+10</span></div>
+ <div class="body-md" style="font-weight:600">You finished all 3 steps. You know all about the ${esc(m.toLowerCase())}!</div><span class="sparks sm">${ic('UI/Sparks')}+10</span></div>
  <div class="col gap12 pad" style="padding-bottom:28px">${btn(`See ${m.toLowerCase()} builds`,{act:'expertDone',arg:'k/builds'})}${btn('Back to Learn',{style:'secondary',act:'expertDone',arg:'k/learn'})}</div></div>`}};
 ACTIONS.expertDone=r=>{S.sparks+=10;go(r)};
 
